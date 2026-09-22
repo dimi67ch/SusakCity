@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#07050d" />
+    <title>Susak City Slots</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ff2e88'/%3E%3Cstop offset='1' stop-color='%2300e5ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%2307050d'/%3E%3Ctext x='32' y='46' font-family='Impact,sans-serif' font-size='40' text-anchor='middle' fill='url(%23g)'%3ES%3C/text%3E%3C/svg%3E" />
+  </head>
+  <body>
+    <div class="bg" aria-hidden="true">
+      <div class="bg__sky"></div>
+      <div class="bg__stars"></div>
+      <div class="bg__moon"></div>
+      <div class="bg__horizon"></div>
+      <svg class="bg__city bg__city--back" id="city-back"></svg>
+      <svg class="bg__city bg__city--front" id="city-front"></svg>
+      <div class="bg__haze"></div>
+      <div class="bg__palm bg__palm--left" id="palm-left"></div>
+      <div class="bg__palm bg__palm--right" id="palm-right"></div>
+      <div class="bg__car" id="car"></div>
+      <img class="bg__boss" id="boss" alt="" draggable="false" />
+      <div class="bg__vignette"></div>
+      <div class="bg__grain"></div>
+    </div>
+
+    <main class="app">
+      <header class="logo" aria-label="Susak City">
+        <span class="logo__susak" data-text="SUSAK">SUSAK</span>
+        <span class="logo__city">City</span>
+      </header>
+
+      <section class="machine">
+        <div class="markers markers--left" id="markers-left"></div>
+        <div class="frame">
+          <div class="frame__border"></div>
+          <div class="grid" id="grid"></div>
+        </div>
+        <div class="markers markers--right" id="markers-right"></div>
+      </section>
+
+      <div class="ticker" id="ticker" aria-live="polite">Viel Glück in Susak City!</div>
+
+      <footer class="hud">
+        <div class="hud__side hud__side--left">
+          <button class="icon-btn" id="btn-info" aria-label="Gewinntabelle">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.2v.1"/></svg>
+          </button>
+          <button class="icon-btn" id="btn-sound" aria-label="Ton an/aus">
+            <svg viewBox="0 0 24 24" class="ico-on"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+            <svg viewBox="0 0 24 24" class="ico-off"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>
+          </button>
+        </div>
+
+        <div class="stat stat--balance">
+          <span class="stat__label">Guthaben</span>
+          <strong class="stat__value" id="balance">$0</strong>
+        </div>
+
+        <div class="bet">
+          <button class="round-btn" id="bet-down" aria-label="Einsatz verringern">−</button>
+          <div class="stat">
+            <span class="stat__label">Einsatz</span>
+            <strong class="stat__value" id="bet">$0</strong>
+          </div>
+          <button class="round-btn" id="bet-up" aria-label="Einsatz erhöhen">+</button>
+        </div>
+
+        <button class="spin" id="btn-spin" aria-label="Drehen">
+          <span class="spin__ring"></span>
+          <svg class="spin__icon" viewBox="0 0 48 48"><path d="M38 20a15 15 0 1 0 1 10"/><path d="M39 8v12H27"/></svg>
+          <span class="spin__stop">STOP</span>
+          <span class="spin__count" id="auto-count"></span>
+        </button>
+
+        <div class="stat stat--win">
+          <span class="stat__label">Gewinn</span>
+          <strong class="stat__value" id="win">$0</strong>
+        </div>
+
+        <div class="hud__side hud__side--right">
+          <div class="auto">
+            <button class="icon-btn" id="btn-auto" aria-label="Autoplay" aria-haspopup="true">
+              <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/><path d="M10 9l5 3-5 3z" class="fill"/></svg>
+            </button>
+            <div class="auto__menu" id="auto-menu" hidden>
+              <span class="auto__title">Autoplay</span>
+              <button data-auto="10">10</button>
+              <button data-auto="25">25</button>
+              <button data-auto="50">50</button>
+              <button data-auto="100">100</button>
+            </div>
+          </div>
+          <button class="icon-btn" id="btn-turbo" aria-label="Turbo" aria-pressed="false">
+            <svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>
+          </button>
+        </div>
+      </footer>
+    </main>
+
+    <canvas class="fx" id="fx"></canvas>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
