@@ -8,7 +8,7 @@ const PORTRAITS: Partial<Record<SymbolId, string>> = { don: donFace, playboy: pl
 
 /**
  * Eigene Symbolgrafiken werden automatisch aus `src/assets/symbols/<id>.<ext>` geladen
- * und haben Vorrang vor den eingebauten Neon-SVG-Icons.
+ * und ersetzen das eingebaute Neon-SVG-Icon auf der Kachel.
  */
 const files = import.meta.glob('../assets/symbols/*.{png,webp,jpg,jpeg,svg,avif}', {
   eager: true,
@@ -36,32 +36,30 @@ export function renderSymbol(id: SymbolId): HTMLElement {
   el.style.setProperty('--c1', def.color[0]);
   el.style.setProperty('--c2', def.color[1]);
 
-  const img = IMAGES[id];
-  if (img) {
-    el.classList.add('sym--image');
-    const i = document.createElement('img');
-    i.src = img;
-    i.alt = def.name;
-    i.draggable = false;
-    el.append(i);
-    return el;
-  }
-
   if (id === 'wild') {
-    el.innerHTML = `
-      <div class="sym__plate">
-        ${iconSvg('wild')}
-        <span class="sym__wild-word">WILD</span>
-      </div>`;
+    // Eigenes Bild (z. B. Porträt) füllt die Kachel, sonst das gezeichnete Icon
+    const img = IMAGES.wild;
+    el.innerHTML = img
+      ? `<div class="sym__plate sym__plate--portrait">
+           <img class="sym__portrait" src="${img}" alt="${def.name}" draggable="false" />
+           <span class="sym__wild-word">WILD</span>
+         </div>`
+      : `<div class="sym__plate">
+           ${iconSvg('wild')}
+           <span class="sym__wild-word">WILD</span>
+         </div>`;
     return el;
   }
 
   const badge = KIND_LABEL[def.kind];
   const label = def.label ?? def.name;
   const portrait = PORTRAITS[id];
+  const custom = IMAGES[id];
   const art = portrait
     ? `<img class="sym__portrait" src="${portrait}" alt="${def.name}" draggable="false" />`
-    : (iconSvg(id) ?? '');
+    : custom
+      ? `<img class="sym__icon sym__img" src="${custom}" alt="${def.name}" draggable="false" />`
+      : (iconSvg(id) ?? '');
   el.innerHTML = `
     <div class="sym__plate${portrait ? ' sym__plate--portrait' : ''}">
       ${art}

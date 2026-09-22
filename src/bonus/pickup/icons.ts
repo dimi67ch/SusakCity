@@ -78,6 +78,37 @@ const BODIES: Record<PickSymbol, string> = {
     <path d="M22 22 C 16 44, 20 64, 30 74" stroke="#fff" stroke-width="2" fill="none" opacity=".5"/>`,
 };
 
+const nodeCache = new Map<PickSymbol, Element>();
+
+/** Vorgerenderter Symbol-Knoten (wird nur geklont, nicht neu geparst). */
+export function pickIconNode(s: PickSymbol): Node {
+  let n = nodeCache.get(s);
+  if (!n) {
+    const t = document.createElement('template');
+    t.innerHTML = pickIcon(s);
+    n = t.content.firstElementChild!;
+    nodeCache.set(s, n);
+  }
+  return n.cloneNode(true);
+}
+
+/** Neutrale Formen für die Muster auf den Kombi-Feldern */
+export type ShapeKind = 'square' | 'circle' | 'triangle' | 'diamond' | 'star' | 'joker';
+
+const SHAPES: Record<ShapeKind, string> = {
+  square: '<rect x="14" y="14" width="72" height="72" rx="12"/>',
+  circle: '<circle cx="50" cy="50" r="38"/>',
+  triangle: '<path d="M50 10 L 90 84 H 10 Z" stroke-linejoin="round"/>',
+  diamond: '<path d="M50 8 L 90 50 L 50 92 L 10 50 Z" stroke-linejoin="round"/>',
+  star: '<path d="M50 8 L61 38 L93 38 L67 57 L77 88 L50 69 L23 88 L33 57 L7 38 L39 38 Z" stroke-linejoin="round"/>',
+  joker: '<circle cx="50" cy="50" r="38"/><text x="50" y="68" text-anchor="middle" font-family="Anton, Impact, sans-serif" font-size="52" fill="#1a0b2e" stroke="none">?</text>',
+};
+
+/** `tone` 0 = Hauptgruppe (gold), 1 = zweite Gruppe (cyan) */
+export function shapeIcon(kind: ShapeKind, tone: 0 | 1 = 0): string {
+  return `<svg class="pk-shape" data-tone="${tone}" viewBox="0 0 100 100" aria-hidden="true">${SHAPES[kind]}</svg>`;
+}
+
 export function pickIcon(s: PickSymbol): string {
   return `<svg class="pk-icon" viewBox="0 0 100 100" aria-hidden="true">${BODIES[s]}</svg>`;
 }

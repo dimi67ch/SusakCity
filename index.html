@@ -18,7 +18,7 @@
       <div class="bg__haze"></div>
       <div class="bg__palm bg__palm--left" id="palm-left"></div>
       <div class="bg__palm bg__palm--right" id="palm-right"></div>
-      <div class="bg__car" id="car"></div>
+      <img class="bg__car" id="car" alt="" draggable="false" />
       <img class="bg__boss" id="boss" alt="" draggable="false" />
       <div class="bg__vignette"></div>
       <div class="bg__grain"></div>
@@ -42,28 +42,22 @@
       <div class="ticker" id="ticker" aria-live="polite">Viel Glück in Susak City!</div>
 
       <footer class="hud">
-        <div class="hud__side hud__side--left">
-          <button class="icon-btn" id="btn-info" aria-label="Gewinntabelle">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.2v.1"/></svg>
-          </button>
-          <button class="icon-btn" id="btn-sound" aria-label="Ton an/aus">
-            <svg viewBox="0 0 24 24" class="ico-on"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
-            <svg viewBox="0 0 24 24" class="ico-off"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>
-          </button>
-        </div>
-
-        <div class="stat stat--balance">
-          <span class="stat__label">Guthaben</span>
-          <strong class="stat__value" id="balance">$0</strong>
-        </div>
-
-        <div class="bet">
-          <button class="round-btn" id="bet-down" aria-label="Einsatz verringern">−</button>
-          <div class="stat">
-            <span class="stat__label">Einsatz</span>
-            <strong class="stat__value" id="bet">$0</strong>
+        <div class="hud__half hud__half--left">
+          <div class="hud__side hud__side--left">
+            <button class="icon-btn" id="btn-info" aria-label="Gewinntabelle">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.2v.1"/></svg>
+            </button>
+            <button class="icon-btn" id="btn-sound" aria-label="Ton an/aus">
+              <svg viewBox="0 0 24 24" class="ico-on"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+              <svg viewBox="0 0 24 24" class="ico-off"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>
+            </button>
           </div>
-          <button class="round-btn" id="bet-up" aria-label="Einsatz erhöhen">+</button>
+
+          <div class="stat stat--balance">
+            <span class="stat__label">Guthaben</span>
+            <strong class="stat__value" id="balance">$0</strong>
+          </div>
+
         </div>
 
         <button class="spin" id="btn-spin" aria-label="Drehen">
@@ -73,27 +67,38 @@
           <span class="spin__count" id="auto-count"></span>
         </button>
 
-        <div class="stat stat--win">
-          <span class="stat__label">Gewinn</span>
-          <strong class="stat__value" id="win">$0</strong>
-        </div>
-
-        <div class="hud__side hud__side--right">
-          <div class="auto">
-            <button class="icon-btn" id="btn-auto" aria-label="Autoplay" aria-haspopup="true">
-              <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/><path d="M10 9l5 3-5 3z" class="fill"/></svg>
-            </button>
-            <div class="auto__menu" id="auto-menu" hidden>
-              <span class="auto__title">Autoplay</span>
-              <button data-auto="10">10</button>
-              <button data-auto="25">25</button>
-              <button data-auto="50">50</button>
-              <button data-auto="100">100</button>
+        <div class="hud__half hud__half--right">
+          <div class="bet">
+            <button class="round-btn" id="bet-down" aria-label="Einsatz verringern">−</button>
+            <div class="stat">
+              <span class="stat__label">Einsatz</span>
+              <strong class="stat__value" id="bet">$0</strong>
             </div>
+            <button class="round-btn" id="bet-up" aria-label="Einsatz erhöhen">+</button>
           </div>
-          <button class="icon-btn" id="btn-turbo" aria-label="Turbo" aria-pressed="false">
-            <svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>
-          </button>
+
+          <div class="stat stat--win">
+            <span class="stat__label">Gewinn</span>
+            <strong class="stat__value" id="win">$0</strong>
+          </div>
+
+          <div class="hud__side hud__side--right">
+            <div class="auto">
+              <button class="icon-btn" id="btn-auto" aria-label="Autoplay" aria-haspopup="true">
+                <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/><path d="M10 9l5 3-5 3z" class="fill"/></svg>
+              </button>
+              <div class="auto__menu" id="auto-menu" hidden>
+                <span class="auto__title">Autoplay</span>
+                <button data-auto="10">10</button>
+                <button data-auto="25">25</button>
+                <button data-auto="50">50</button>
+                <button data-auto="100">100</button>
+              </div>
+            </div>
+            <button class="icon-btn" id="btn-turbo" aria-label="Turbo" aria-pressed="false">
+              <svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>
+            </button>
+          </div>
         </div>
       </footer>
     </main>

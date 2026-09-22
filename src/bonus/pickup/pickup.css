@@ -129,6 +129,63 @@
   box-shadow: inset 0 0 0 1.5px rgba(255, 216, 77, 0.35), inset 0 -14px 20px rgba(0, 0, 0, 0.5), inset 0 14px 20px rgba(0, 0, 0, 0.5);
 }
 
+button.pk-reel {
+  padding: 0;
+  border: 0;
+  cursor: default;
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+
+button.pk-reel:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.pk-reel.is-holdable {
+  cursor: pointer;
+}
+
+.pk-reel.is-holdable:hover {
+  transform: translateY(-3px);
+  box-shadow: inset 0 0 0 2px rgba(255, 216, 77, 0.7), inset 0 -14px 20px rgba(0, 0, 0, 0.5), 0 0 16px rgba(255, 216, 77, 0.35);
+}
+
+.pk-reel.is-held {
+  box-shadow: inset 0 0 0 3px var(--gold), inset 0 0 26px rgba(255, 216, 77, 0.35), 0 0 22px rgba(255, 216, 77, 0.55);
+}
+
+.pk-reel__lock {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  translate: -50% 0;
+  display: none;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #1a0b2e;
+  background: var(--gold);
+  box-shadow: 0 0 10px rgba(255, 216, 77, 0.7);
+}
+
+.pk-reel__lock svg {
+  width: 11px;
+  height: 11px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+}
+
+.pk-reel.is-held .pk-reel__lock {
+  display: inline-flex;
+}
+
 .pk-reel__strip {
   display: flex;
   flex-direction: column;
@@ -147,6 +204,10 @@
   width: 72%;
   height: 72%;
   filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.5));
+}
+
+.pk-reel__strip.is-spinning .pk-icon {
+  filter: none;
 }
 
 .pk-cell--land .pk-icon {
@@ -274,6 +335,25 @@
   height: 20px;
 }
 
+/* Formen-Muster der Kombi-Felder */
+.pk-shape {
+  width: 15px;
+  height: 15px;
+  fill: rgba(255, 216, 77, 0.22);
+  stroke: var(--gold);
+  stroke-width: 7;
+}
+
+.pk-shape[data-tone='1'] {
+  fill: rgba(0, 229, 255, 0.22);
+  stroke: var(--cyan);
+}
+
+.pk-field.is-used .pk-shape {
+  fill: rgba(26, 11, 46, 0.25);
+  stroke: #1a0b2e;
+}
+
 .pk-field__label {
   font-size: 13px;
   font-weight: 700;
@@ -307,7 +387,21 @@
   color: #fff;
   background: rgba(255, 216, 77, 0.14);
   border-color: var(--gold);
-  box-shadow: 0 0 20px rgba(255, 216, 77, 0.45);
+  box-shadow: 0 0 18px rgba(255, 216, 77, 0.45);
+}
+
+/* Pulsierendes Leuchten nur über Opacity (GPU), kein Box-Shadow-Repaint */
+.pk-field::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  box-shadow: 0 0 30px rgba(255, 216, 77, 0.8);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pk-field.is-fit::after {
   animation: pk-fit 1s ease-in-out infinite alternate;
 }
 
@@ -318,8 +412,15 @@
 
 @keyframes pk-fit {
   to {
-    box-shadow: 0 0 32px rgba(255, 216, 77, 0.75);
+    opacity: 1;
   }
+}
+
+/* Erhöhte Punktzahl (4 oder 5 gleiche) hervorheben */
+.pk-field.is-boost .pk-field__pts {
+  color: #1a0b2e;
+  background: linear-gradient(90deg, #fff1a8, var(--gold));
+  box-shadow: 0 0 12px rgba(255, 216, 77, 0.7);
 }
 
 .pk-field.is-used {
@@ -417,6 +518,8 @@
 
   .pk__machine {
     padding: 12px;
+    /* mittig zwischen Kopfzeile und Spielblock */
+    margin-block: auto;
   }
 
   .pk__reels {

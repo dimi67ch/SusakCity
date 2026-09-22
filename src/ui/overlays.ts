@@ -126,9 +126,9 @@ export async function runBonus(id: BonusId, trigger: SpinResult, particles: Part
     <div class="bonus__lights"></div>
     <div class="bonus__intro">
       <div class="bonus__crew">
-        <img class="bonus__person bonus__person--left" src="${donUrl}" alt="" />
+        ${id === 'coup' ? `<img class="bonus__person bonus__person--left" src="${donUrl}" alt="" />` : ''}
         <img class="bonus__person bonus__person--center" src="${bossUrl}" alt="" />
-        <img class="bonus__person bonus__person--right" src="${playboyUrl}" alt="" />
+        ${id === 'coup' ? `<img class="bonus__person bonus__person--right" src="${playboyUrl}" alt="" />` : ''}
       </div>
       <p class="bonus__eyebrow">Bonus ausgelöst</p>
       <h2 class="bonus__title">${game.title}</h2>
@@ -150,14 +150,34 @@ export async function runBonus(id: BonusId, trigger: SpinResult, particles: Part
   else sfx.heistStinger();
   particles.burst(innerWidth / 2, innerHeight * 0.4, 120);
 
-  await new Promise<void>((r) => el.querySelector('[data-start]')!.addEventListener('click', () => r(), { once: true }));
+  // Start per Klick oder Leertaste/Enter
+  await new Promise<void>((r) => {
+    const start = () => {
+      removeEventListener('keydown', onKey);
+      r();
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.code === 'Space' || e.key === 'Enter') {
+        e.preventDefault();
+        start();
+      }
+    };
+    addEventListener('keydown', onKey);
+    el.querySelector('[data-start]')!.addEventListener('click', start, { once: true });
+  });
   sfx.uiClick();
   el.querySelector<HTMLElement>('.bonus__intro')!.hidden = true;
   const stage = el.querySelector<HTMLElement>('.bonus__stage')!;
   stage.hidden = false;
-  const win = await game.play({ bet: trigger.bet, trigger, stage, wallet });
-  await closeOverlay(el);
-  return win;
+  // Slot-Szene dahinter nicht mehr rendern – das Bonusspiel deckt alles ab
+  document.body.classList.add('in-bonus-game');
+  el.classList.add('is-playing');
+  try {
+    return await game.play({ bet: trigger.bet, trigger, stage, wallet });
+  } finally {
+    document.body.classList.remove('in-bonus-game');
+    await closeOverlay(el);
+  }
 }
 
 /** Gewinntabelle & Regeln */
@@ -213,7 +233,7 @@ export function openPaytable(bet: number) {
             </div>
             <div class="pt-special">
               <div class="pt-symbol__art" data-sym="scatter"></div>
-              <div><strong>Scatter – Goldmaske</strong><p>Zahlt überall: 3× = ${fmt(SCATTER_PAYS[3] * bet)}, 4× = ${fmt(SCATTER_PAYS[4] * bet)}, 5× = ${fmt(SCATTER_PAYS[5] * bet)}. Ab 3 Goldmasken startet der <b>GOLDEN-MASK-Bonus</b>: eine Runde <b>Pick-Up</b> – 5 Walzen mit je einem Symbol, max. 2 Spins pro Zug, dann ein passendes Feld einlösen (z. B. 3× Symbol, Full House, 4 Gleiche, 5 Gleiche = 50 Punkte). Passt nichts mehr, endet die Runde. Gewinn = Punkte × Einsatz.</p></div>
+              <div><strong>Scatter – Goldmaske</strong><p>Zahlt überall: 3× = ${fmt(SCATTER_PAYS[3] * bet)}, 4× = ${fmt(SCATTER_PAYS[4] * bet)}, 5× = ${fmt(SCATTER_PAYS[5] * bet)}. Ab 3 Goldmasken startet der <b>GOLDEN-MASK-Bonus</b>: eine Runde <b>Pick-Up</b> – 5 Walzen mit je einem Symbol, max. 3 Spins pro Zug (zwischendurch kannst du Walzen sperren), dann ein passendes Feld einlösen (3× Symbol = 2 Punkte, mit 4 gleichen = 4, mit 5 gleichen = 9 · Full House = 2 · 4 Gleiche = 4 · 5 Gleiche = 15). Passt nichts mehr, endet die Runde. Gewinn = Punkte × Einsatz.</p></div>
             </div>
             <div class="pt-special">
               <div class="pt-heist">

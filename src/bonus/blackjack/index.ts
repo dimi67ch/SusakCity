@@ -87,11 +87,13 @@ export function playBlackjack({ stage, wallet }: BonusContext): Promise<number> 
           <div class="bj__label">Dealer <b class="bj__total" data-dealer-total></b></div>
           <div class="bj__cards" data-dealer></div>
         </div>
-        <div class="bj__msg" data-msg></div>
-        <div class="bj__hands" data-hands></div>
-        <div class="bj__spot" data-spot><div class="bj__stack" data-stack></div><span data-spot-amount></span></div>
+        <div class="bj__player">
+          <div class="bj__msg" data-msg></div>
+          <div class="bj__hands" data-hands></div>
+          <div class="bj__spot" data-spot><div class="bj__stack" data-stack></div><span data-spot-amount></span></div>
+        </div>
       </div>
-      <div class="bj__bar">
+      <div class="bj__bar" data-bar>
         <div class="bj__stats">
           <div><span>Bank</span><strong data-bank></strong></div>
           <div><span>Session</span><strong data-net></strong></div>
@@ -101,6 +103,10 @@ export function playBlackjack({ stage, wallet }: BonusContext): Promise<number> 
       </div>`;
 
     const $ = <T extends HTMLElement = HTMLElement>(sel: string) => stage.querySelector(sel) as T;
+
+    // Tatsächliche Höhe der Leiste an das Layout melden, damit nichts darunter rutscht
+    const bar = $('[data-bar]');
+    new ResizeObserver(() => stage.style.setProperty('--bar-h', `${Math.ceil(bar.getBoundingClientRect().height)}px`)).observe(bar);
     const ui = {
       dealer: $('[data-dealer]'),
       dealerTotal: $('[data-dealer-total]'),
@@ -166,7 +172,7 @@ export function playBlackjack({ stage, wallet }: BonusContext): Promise<number> 
             <b class="bj__total">${h.cards.length ? totalLabel(h.cards, false, h.done || phase === 'done') : ''}</b>
             <span>${fmt(h.bet)}${h.doubled ? ' · x2' : ''}</span>
           </div>
-          ${h.outcome ? `<div class="bj-hand__result">${OUTCOME_LABEL[h.outcome]}${(h.payout ?? 0) > h.bet ? ` +${fmt(h.payout! - h.bet)}` : ''}</div>` : ''}`;
+          ${h.outcome && hands.length > 1 ? `<div class="bj-hand__result">${OUTCOME_LABEL[h.outcome]}${(h.payout ?? 0) > h.bet ? ` +${fmt(h.payout! - h.bet)}` : ''}</div>` : ''}`;
         const cards = el.querySelector('.bj__cards')!;
         h.cards.forEach((c) => {
           const ce = cardEl(c);
@@ -275,6 +281,7 @@ export function playBlackjack({ stage, wallet }: BonusContext): Promise<number> 
     };
 
     const renderAll = () => {
+      stage.dataset.phase = phase;
       renderStats();
       renderHands();
       renderDealerTotal();

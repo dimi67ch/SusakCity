@@ -7,16 +7,17 @@ import '@fontsource/inter/600.css';
 import './styles/main.css';
 
 import { Game } from './game';
-import { buildSkyline, CAR_SVG, PALM_SVG } from './ui/background';
+import { buildSkyline, PALM_SVG } from './ui/background';
 import { injectIconDefs } from './ui/icons';
 import bossUrl from './assets/scene/boss.webp';
+import carUrl from './assets/scene/car.webp';
 
 injectIconDefs();
 buildSkyline(document.getElementById('city-back') as unknown as SVGSVGElement, 7, 'back');
 buildSkyline(document.getElementById('city-front') as unknown as SVGSVGElement, 21, 'front');
 document.getElementById('palm-left')!.innerHTML = PALM_SVG;
 document.getElementById('palm-right')!.innerHTML = PALM_SVG;
-document.getElementById('car')!.innerHTML = CAR_SVG;
+(document.getElementById('car') as HTMLImageElement).src = carUrl;
 const boss = document.getElementById('boss') as HTMLImageElement;
 boss.addEventListener('load', () => boss.classList.add('is-loaded'), { once: true });
 boss.src = bossUrl;

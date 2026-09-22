@@ -102,22 +102,63 @@ export class Game {
     this.bindControls();
     this.render();
 
-    if (import.meta.env.DEV) {
-      // Debug im Browser: susak.force('bigwin' | 'wild' | 'golden' | 'coup'), danach Spin drücken
-      (window as unknown as { susak: unknown }).susak = {
-        force: (preset: keyof typeof DEBUG_GRIDS) => {
-          this.forcedGrid = DEBUG_GRIDS[preset].map((col) => [...col]);
-        },
-        balance: (n: number) => {
-          this.balance = n;
-          this.saveBalance();
-          this.render();
-        },
-      };
-    }
+    if (import.meta.env.DEV) this.buildDevPanel();
   }
 
   private forcedGrid: Grid | null = null;
+
+  /**
+   * Dev-Panel (nur `npm run dev`): erzwingt den nächsten Spin.
+   * Auch per Konsole: susak.force('golden'|'coup'|'wild'|'bigwin'), susak.balance(n)
+   */
+  private buildDevPanel() {
+    const force = (preset: keyof typeof DEBUG_GRIDS) => {
+      this.forcedGrid = DEBUG_GRIDS[preset].map((col) => [...col]);
+      this.setTicker(`DEV: nächster Spin = ${preset}`, 'bonus');
+    };
+    (window as unknown as { susak: unknown }).susak = {
+      force,
+      balance: (n: number) => {
+        this.balance = n;
+        this.saveBalance();
+        this.render();
+      },
+    };
+
+    const panel = document.createElement('div');
+    panel.className = 'devbar';
+    panel.innerHTML = '<span class="devbar__title">DEV</span>';
+    const add = (label: string, onClick: () => void, key?: string) => {
+      const b = document.createElement('button');
+      b.innerHTML = key ? `${label}<kbd>${key}</kbd>` : label;
+      b.addEventListener('click', onClick);
+      panel.append(b);
+    };
+    const spinWith = (preset: keyof typeof DEBUG_GRIDS) => {
+      force(preset);
+      if (!this.busy) void this.play();
+    };
+    add('Pick-Up', () => spinWith('golden'), '1');
+    add('Blackjack', () => spinWith('coup'), '2');
+    add('Big Win', () => spinWith('bigwin'), '3');
+    add('Wild', () => spinWith('wild'), '4');
+    add('+$10k', () => {
+      this.balance += 10_000;
+      this.saveBalance();
+      this.render();
+    }, '5');
+    document.body.append(panel);
+
+    addEventListener('keydown', (e) => {
+      if (!e.ctrlKey || e.metaKey || e.altKey) return;
+      const i = Number(e.key);
+      const buttons = [...panel.querySelectorAll('button')];
+      if (i >= 1 && i <= buttons.length) {
+        e.preventDefault();
+        buttons[i - 1].click();
+      }
+    });
+  }
 
   private get bet() {
     return BET_LEVELS[this.betIndex];

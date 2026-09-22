@@ -235,17 +235,12 @@ button:disabled {
 
 /* Szene: Auto links, Boss rechts */
 .bg__car {
-  left: -3vw;
-  bottom: 9vh;
-  width: min(38vw, 560px);
-  aspect-ratio: 1000 / 340;
-  filter: drop-shadow(0 0 18px rgba(255, 46, 136, 0.45));
-}
-
-.bg__car svg {
-  width: 100%;
-  height: 100%;
-  display: block;
+  /* groß links im Bild, darf hinter den Automaten ragen */
+  left: max(-1vw, calc(50vw - 300px - min(38vw, 660px)));
+  bottom: 5vh;
+  width: min(38vw, 660px);
+  height: auto;
+  filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.75)) drop-shadow(0 0 30px rgba(255, 46, 136, 0.3));
 }
 
 .bg__boss {
@@ -534,11 +529,8 @@ body.is-spinning .frame::after {
   container-type: size;
 }
 
-.sym img {
-  width: 100%;
-  height: 100%;
+.sym__img {
   object-fit: contain;
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
 }
 
 .sym__plate {
@@ -604,6 +596,18 @@ body.is-spinning .frame::after {
   border-radius: inherit;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 -18px 24px -8px rgba(11, 7, 22, 0.8);
   pointer-events: none;
+}
+
+/* WILD-Schriftzug als Etikett unter dem Porträt */
+.sym__plate--portrait .sym__wild-word {
+  position: absolute;
+  bottom: 5cqh;
+  z-index: 1;
+  padding: 1cqh 7cqh;
+  border-radius: 99px;
+  font-size: 15cqh;
+  background: rgba(11, 7, 22, 0.66);
+  text-shadow: 0 2px 0 #5b1250, 0 0 12px rgba(255, 216, 77, 0.8);
 }
 
 .sym__plate--portrait .sym__badge {
@@ -722,9 +726,22 @@ body.is-spinning .frame::after {
 
 .sym--scatter .sym__plate {
   border-width: 2px;
+  border-color: #b38600;
   background:
     radial-gradient(60% 55% at 50% 50%, rgba(255, 216, 77, 0.35), transparent 70%),
     linear-gradient(165deg, #2d0f5a, #0f0620 70%);
+}
+
+/* Goldenes Pulsieren über Opacity statt Rahmen/Schatten (kein Repaint) */
+.sym--scatter .sym__plate::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  border: 2px solid #ffe066;
+  box-shadow: inset 0 0 30px rgba(255, 216, 77, 0.6);
+  opacity: 0;
+  will-change: opacity;
   animation: gold-glow 1.6s ease-in-out infinite alternate;
 }
 
@@ -737,8 +754,9 @@ body.is-spinning .frame::after {
 }
 
 @keyframes gold-glow {
-  from { border-color: #b38600; box-shadow: inset 0 0 16px rgba(255, 216, 77, 0.3); }
-  to { border-color: #ffe066; box-shadow: inset 0 0 30px rgba(255, 216, 77, 0.6); }
+  to {
+    opacity: 1;
+  }
 }
 
 .sym--heist .sym__plate {
@@ -758,6 +776,7 @@ body.is-spinning .frame::after {
 .cell--scatter .sym,
 .cell--heist .sym {
   animation: win-pulse 0.9s ease-in-out infinite;
+  will-change: transform;
   z-index: 2;
 }
 
@@ -856,8 +875,12 @@ body.is-spinning .frame::after {
   position: absolute;
   inset: 0;
   z-index: 4;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--cell) * 0.12);
+  padding: calc(var(--cell) * 0.1) 4px;
   background:
     radial-gradient(80% 40% at 50% 50%, rgba(255, 255, 255, 0.35), transparent 70%),
     linear-gradient(180deg, #ff2e88, #8b5cf6 50%, #00b7ff);
@@ -867,40 +890,30 @@ body.is-spinning .frame::after {
     expand-out 0.45s ease 1.3s forwards;
 }
 
-.expand-overlay__inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  animation: expand-text 0.5s ease 0.25s both;
+/* Ausgedehnte Walze: ganze Figur plus Schriftzug */
+.expand-overlay__figure {
+  max-width: 100%;
+  max-height: 74%;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.6));
+  animation: expand-figure 0.6s cubic-bezier(0.2, 0.9, 0.3, 1) both;
 }
 
-.expand-overlay__watch {
-  width: calc(var(--cell) * 0.95);
-  height: calc(var(--cell) * 0.95);
-  margin-bottom: calc(var(--cell) * 0.1);
-  filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.6));
-}
-
-.expand-overlay__watch svg {
-  width: 100%;
-  height: 100%;
-}
-
-.expand-overlay__script {
-  font-family: var(--font-script);
-  font-size: calc(var(--cell) * 0.34);
-  line-height: 1.1;
-  color: #fff;
-  text-shadow: 0 0 10px var(--cyan), 0 0 20px var(--cyan);
-  rotate: -8deg;
+@keyframes expand-figure {
+  from {
+    opacity: 0;
+    transform: translateY(10%) scale(0.9);
+  }
 }
 
 .expand-overlay__word {
   font-family: var(--font-display);
-  font-size: calc(var(--cell) * 0.62);
-  line-height: 0.95;
+  font-size: calc(var(--cell) * 0.4);
+  line-height: 1;
+  letter-spacing: 0.1em;
   color: #fff;
   text-shadow: 0 4px 0 #5b1250, 0 0 20px rgba(255, 216, 77, 0.9);
+  animation: expand-text 0.5s ease 0.3s both;
 }
 
 @keyframes expand-text {
@@ -1010,8 +1023,8 @@ body.is-spinning .frame::after {
 .hud {
   width: min(100%, 980px);
   display: grid;
-  grid-template-columns: auto 1fr auto auto auto 1fr auto;
-  grid-template-areas: 'left balance bet spin win . right';
+  /* Zwei gleich breite Hälften – Spin-Button exakt mittig */
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   gap: 16px;
   padding: 12px 18px;
@@ -1027,12 +1040,25 @@ body.is-spinning .frame::after {
   gap: 8px;
 }
 
-.hud__side--left { grid-area: left; }
-.hud__side--right { grid-area: right; justify-self: end; }
-.stat--balance { grid-area: balance; justify-self: start; }
-.bet { grid-area: bet; }
-.spin { grid-area: spin; }
-.stat--win { grid-area: win; }
+.spin {
+  justify-self: center;
+}
+
+.hud__half {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.hud__half--left {
+  justify-content: space-between;
+}
+
+/* Rechte Hälfte: Einsatz neben dem Spin-Button, dann Gewinn, Icons außen */
+.hud__half--right .hud__side--right {
+  margin-left: auto;
+}
 
 .stat {
   display: flex;
@@ -1453,13 +1479,24 @@ body.is-spinning .spin__ring {
 
 /* Bonus */
 .bonus {
-  overflow: hidden;
+  overflow: hidden auto;
 }
 
 .bonus__lights {
   position: absolute;
   inset: 0;
   pointer-events: none;
+}
+
+/* Während ein Bonusspiel läuft, die verdeckte Slot-Szene nicht rendern */
+body.in-bonus-game .app,
+body.in-bonus-game .bg,
+.bonus.is-playing .bonus__lights {
+  visibility: hidden;
+}
+
+body.in-bonus-game .bg * {
+  animation-play-state: paused;
 }
 
 .bonus--gold .bonus__lights {
@@ -1493,9 +1530,23 @@ body.is-spinning .spin__ring {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: min(14px, 1.6vh);
   text-align: center;
   max-width: 640px;
+}
+
+/* Intro passt immer in die Bildschirmhöhe */
+.bonus__intro .bonus__title {
+  font-size: clamp(44px, min(13vw, 12vh), 140px);
+  white-space: nowrap;
+}
+
+.bonus__intro .bonus__icon {
+  width: clamp(64px, 11vh, 110px);
+}
+
+.bonus__intro .bonus__tagline {
+  margin: 0;
 }
 
 .bonus__eyebrow {
@@ -1531,8 +1582,8 @@ body.is-spinning .spin__ring {
 .bonus__crew {
   position: relative;
   width: min(92vw, 900px);
-  height: min(46vh, 440px);
-  margin-bottom: -14vh;
+  height: min(38vh, 420px);
+  margin-bottom: -10vh;
   pointer-events: none;
 }
 
@@ -1853,6 +1904,21 @@ body.is-spinning .spin__ring {
     grid-template-areas:
       'balance bet win'
       'left spin right';
+  }
+
+  /* Auf dem Handy verteilen sich die Hälften wieder auf das 2-zeilige Raster */
+  .hud__half {
+    display: contents;
+  }
+
+  .hud__side--left { grid-area: left; }
+  .hud__side--right { grid-area: right; justify-self: end; }
+  .stat--balance { grid-area: balance; justify-self: start; }
+  .bet { grid-area: bet; }
+  .spin { grid-area: spin; }
+  .stat--win { grid-area: win; margin-right: 0; }
+
+  .hud {
     gap: 10px 8px;
     padding: 12px 14px 14px;
     border-radius: 24px;
@@ -1916,8 +1982,20 @@ body.is-spinning .spin__ring {
     opacity: 0.8;
   }
 
+  /* Auto sitzt auf dem Handy über dem Automaten */
   .bg__car {
-    display: none;
+    display: block;
+    left: 40%;
+    top: 10vh;
+    bottom: auto;
+    translate: -50% 0;
+    width: 72vw;
+    opacity: 0.55;
+  }
+
+  /* Automat etwas tiefer, damit oben Platz für das Auto bleibt */
+  .machine {
+    margin-top: 13vh;
   }
 
   .bg__boss {
@@ -1928,7 +2006,7 @@ body.is-spinning .spin__ring {
   }
 
   .bg__boss.is-loaded {
-    opacity: 0.6;
+    opacity: 0.88;
   }
 }
 
@@ -1953,4 +2031,58 @@ body.is-spinning .spin__ring {
   .sym--high .sym__plate::after {
     animation: none !important;
   }
+}
+
+/* ═══════════════════════════ Dev-Panel (nur im Dev-Modus) ═══════════════════════════ */
+.devbar {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  background: rgba(10, 6, 20, 0.85);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  opacity: 0.35;
+  transition: opacity 0.2s;
+}
+
+.devbar:hover {
+  opacity: 1;
+}
+
+.devbar__title {
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--cyan);
+}
+
+.devbar button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border-radius: 8px;
+  font-weight: 700;
+  color: #d9d2f0;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.devbar button:hover {
+  background: rgba(0, 229, 255, 0.25);
+  color: #fff;
+}
+
+.devbar kbd {
+  padding: 0 4px;
+  border-radius: 4px;
+  font-size: 9px;
+  color: var(--muted);
+  background: rgba(0, 0, 0, 0.4);
 }

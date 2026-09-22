@@ -4,7 +4,7 @@
     {
       "name": "susak-city",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--", "--port", "5188", "--strictPort"],
+      "runtimeArgs": ["run", "dev", "--", "--host", "--port", "5188", "--strictPort"],
       "port": 5188
     }
   ]

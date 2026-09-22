@@ -19,6 +19,7 @@ npm run simulate   # RTP-Simulation (Standard: 2 Mio. Spins)
 | Wild | Expanding Wild auf Walze 2–4, dehnt sich aus, wenn es zu einem Gewinn beiträgt |
 | Scatter | Goldmaske, zahlt 2× / 10× / 50× Einsatz, ab 3 → **GOLDEN-MASK-Bonus** |
 | Coup | Ass + beide Crew-Porträts gleichzeitig sichtbar → **COUP-Bonus**: echtes Blackjack (Vegas-Regeln) mit dem Bankguthaben |
+| Golden Mask | 3+ Scatter → **Pick-Up**: 5 Einzelwalzen, max. 3 Spins pro Zug (Walzen sperrbar), 12 Felder einlösen, Gewinn = Punkte × Einsatz (Ø ≈ 13×) |
 | Einsatz | $10 – $1.000, Startguthaben $10.000 (localStorage) |
 
 Basisspiel-RTP ≈ 95,4 %, Trefferquote ≈ 28 %, Golden Mask ≈ 1/170, Coup ≈ 1/270 Spins (ohne Bonusspiele).
@@ -51,6 +52,9 @@ liefert den Gewinn als Promise zurück.
 
 ## Debug (nur `npm run dev`)
 
-In der Browser-Konsole: `susak.force('bigwin' | 'wild' | 'golden' | 'coup')`, dann drehen.
+Oben links erscheint eine **DEV-Leiste**: Pick-Up · Blackjack · Big Win · Wild · +$10k
+(auch per `Strg`+`1`…`5`). Ein Klick dreht sofort mit dem passenden Raster.
+
+Alternativ in der Browser-Konsole: `susak.force('bigwin' | 'wild' | 'golden' | 'coup')`, dann drehen.
 `susak.balance(5000)` setzt das Guthaben.
 Am Blackjack-Tisch: `bj.rig('8 A 8 K 3 10')` legt die nächsten Karten fest (Spieler, Dealer offen, Spieler, Dealer verdeckt, …).

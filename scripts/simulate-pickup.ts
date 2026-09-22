@@ -1,9 +1,10 @@
 /**
  * Simulation des Pick-Up-Bonus (Golden Mask) mit einer einfachen Strategie:
- * Nach Spin 1 nur einlösen, wenn ein Feld ≥ 3 Punkte passt, sonst nochmal drehen.
+ * Nach Spin 1 nur einlösen, wenn ein Feld ≥ 3 Punkte passt, sonst das häufigste
+ * Symbol sperren und nochmal drehen.
  * Aufruf: npm run simulate:pickup -- [runden]
  */
-import { bestField, FIELDS, fittingFields, roll, type FieldId } from '../src/bonus/pickup/engine';
+import { bestField, fieldScore, FIELDS, fittingFields, MAX_SPINS, roll, suggestHolds, type FieldId } from '../src/bonus/pickup/engine';
 import { mulberry32 } from '../src/engine/rng';
 
 const N = Number(process.argv[2] ?? 200_000);
@@ -20,15 +21,17 @@ for (let i = 0; i < N; i++) {
   for (;;) {
     let r = roll(rng);
     let opts = fittingFields(r, used);
-    const first = bestField(opts);
-    if (!first || first.points < 3) {
-      r = roll(rng);
+    // Erneut drehen, solange nur schwache Felder passen (max. MAX_SPINS Spins)
+    for (let spin = 1; spin < MAX_SPINS; spin++) {
+      const best = bestField(opts, r);
+      if (best && fieldScore(best, r) >= 2) break;
+      r = roll(rng, r, suggestHolds(r));
       opts = fittingFields(r, used);
     }
-    const pick = bestField(opts);
+    const pick = bestField(opts, r);
     if (!pick) break;
     used.add(pick.id);
-    points += pick.points;
+    points += fieldScore(pick, r);
     fieldHits[pick.id] = (fieldHits[pick.id] ?? 0) + 1;
     if (used.size === FIELDS.length) break;
   }

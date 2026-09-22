@@ -2,7 +2,7 @@
 .bj {
   --felt-h: 58vh;
   --bar-h: 84px;
-  --card-h: min(12vh, 16vw, 120px);
+  --card-h: min(10.5vh, 14vw, 104px);
   --card-w: calc(var(--card-h) * 0.7);
 
   position: fixed;
@@ -12,6 +12,23 @@
   background: #07040e;
   font-family: var(--font-ui);
   user-select: none;
+}
+
+/* Niedrige Fenster: mehr Filz, kleinere Karten, flachere Leiste */
+@media (max-height: 800px) {
+  .bj {
+    --felt-h: 64vh;
+    --card-h: min(10vh, 13vw, 92px);
+    --bar-h: 76px;
+  }
+}
+
+@media (max-height: 680px) {
+  .bj {
+    --felt-h: 70vh;
+    --card-h: min(9.5vh, 12vw, 82px);
+    --bar-h: 70px;
+  }
 }
 
 /* Raum */
@@ -106,6 +123,7 @@
   filter: drop-shadow(0 -10px 30px rgba(0, 0, 0, 0.7));
 }
 
+/* Senkrechte Aufteilung: Dealer oben, Spielerbereich unten – nichts überlappt */
 .bj__play {
   position: absolute;
   left: 0;
@@ -113,6 +131,12 @@
   bottom: 0;
   height: var(--felt-h);
   z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 8px calc(var(--bar-h) + 8px);
 }
 
 .bj__shoe {
@@ -139,10 +163,6 @@
 }
 
 .bj__dealer {
-  position: absolute;
-  top: 5%;
-  left: 50%;
-  translate: -50% 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -153,7 +173,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 11px;
+  font-size: 12px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
   font-weight: 700;
   letter-spacing: 0.25em;
   text-transform: uppercase;
@@ -161,10 +182,11 @@
 }
 
 .bj__total {
-  min-width: 34px;
-  padding: 2px 8px;
+  min-width: 38px;
+  padding: 3px 10px;
   border-radius: 99px;
-  font-size: 13px;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
   letter-spacing: 0.04em;
   text-align: center;
   color: #fff;
@@ -289,16 +311,14 @@
 
 /* Nachricht */
 .bj__msg {
-  position: absolute;
-  top: 31%;
-  left: 50%;
-  translate: -50% 0;
+  position: relative;
   z-index: 2;
+  font-variant-numeric: tabular-nums;
   max-width: 90vw;
   padding: 8px 20px;
   border-radius: 99px;
   font-weight: 700;
-  font-size: clamp(13px, 1.9vh, 17px);
+  font-size: clamp(14px, 2.1vh, 19px);
   letter-spacing: 0.06em;
   text-align: center;
   color: #fff;
@@ -339,13 +359,19 @@
 }
 
 /* Spielerhände */
+/* Hände und Einsatzfeld stapeln sich von unten – so überlappt nie etwas */
+.bj__player {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
 .bj__hands {
-  position: absolute;
-  top: 40%;
-  left: 50%;
-  translate: -50% 0;
   display: flex;
   gap: clamp(12px, 3vw, 40px);
+  /* Platz für die Ergebnis-Schilder über den Händen */
+  margin-top: 12px;
 }
 
 .bj-hand {
@@ -368,9 +394,19 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  padding: 3px 12px;
+  border-radius: 99px;
+  font-size: 15px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.8);
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  background: rgba(7, 4, 14, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.bj-hand__info span {
+  color: var(--gold);
 }
 
 .bj-hand__result {
@@ -413,19 +449,18 @@
 
 /* Einsatzfeld */
 .bj__spot {
-  position: absolute;
-  left: 50%;
-  bottom: calc(var(--bar-h) + 1.2vh);
-  translate: -50% 0;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 6px 16px 6px 6px;
+  padding: 6px 18px 6px 6px;
   border-radius: 99px;
   border: 2px dashed rgba(232, 197, 90, 0.55);
+  background: rgba(7, 4, 14, 0.72);
   font-weight: 700;
-  font-size: 13px;
-  color: rgba(232, 197, 90, 0.9);
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  color: rgba(232, 197, 90, 0.95);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 .bj__spot.has-bet {
@@ -437,16 +472,16 @@
 
 .bj__stack {
   position: relative;
-  width: 44px;
-  height: 44px;
+  width: 38px;
+  height: 38px;
 }
 
 .bj__stack .chip {
   position: absolute;
   left: 0;
   bottom: calc(var(--i) * 3px);
-  width: 44px;
-  height: 44px;
+  width: 38px;
+  height: 38px;
   font-size: 11px;
   animation: chip-drop 0.25s ease-out both;
 }
@@ -616,7 +651,7 @@ button.chip:disabled {
   .bj {
     --felt-h: 62vh;
     --bar-h: 150px;
-    --card-h: min(10.5vh, 19vw);
+    --card-h: min(9.5vh, 18vw);
   }
 
   .bj__bar {
@@ -656,12 +691,12 @@ button.chip:disabled {
     display: none;
   }
 
-  .bj__hands {
-    top: 35%;
+  /* Kein Platz: Einsatzfeld nur beim Setzen zeigen – der Einsatz steht an der Hand */
+  .bj[data-phase]:not([data-phase='bet']) .bj__spot {
+    display: none;
   }
 
   .bj__msg {
-    top: 29%;
     white-space: normal;
   }
 }

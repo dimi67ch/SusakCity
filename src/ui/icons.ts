@@ -42,6 +42,13 @@ export const ICON_DEFS = `
     <radialGradient id="ic-dial" cx=".4" cy=".35" r=".75">
       <stop offset="0" stop-color="#3b2a8c"/><stop offset=".55" stop-color="#1a1150"/><stop offset="1" stop-color="#07051a"/>
     </radialGradient>
+    <radialGradient id="ic-eye" cx=".5" cy=".4" r=".7">
+      <stop offset="0" stop-color="#f3d7ff"/><stop offset=".55" stop-color="#a86bd6"/><stop offset="1" stop-color="#2a0b3a"/>
+    </radialGradient>
+    <linearGradient id="ic-mask" x1=".2" y1="0" x2=".85" y2="1">
+      <stop offset="0" stop-color="#fff0b0"/><stop offset=".3" stop-color="#e8b429"/>
+      <stop offset=".62" stop-color="#b9820d"/><stop offset="1" stop-color="#6d4a05"/>
+    </linearGradient>
     <linearGradient id="ic-card" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e9e3f5"/>
     </linearGradient>
@@ -153,11 +160,12 @@ const ICONS: Partial<Record<SymbolId, string>> = {
     <path d="M28 28 H72 C 82 32, 84 42, 84 52 V 78 C 84 88, 76 92, 66 92 H34 C 24 92, 16 88, 16 78 V 52 C 16 42, 18 32, 28 28 Z" fill="url(#ic-glass)"/>
     <path d="M32 26 C 32 36, 37 38, 37 46 C 37 51, 31 51, 31 46 C 31 40, 28 36, 28 28 Z" fill="#ffb830" stroke="#8a4a00" stroke-width="1"/>
     <path d="M60 26 C 60 32, 63 34, 63 39 C 63 42, 59 42, 59 39 C 59 35, 57 32, 57 28 Z" fill="#ffb830" stroke="#8a4a00" stroke-width="1"/>
-    <polygon points="50,50 64,58 64,74 50,82 36,74 36,58" fill="#fff3d0" stroke="#7a4b00" stroke-width="2"/>
-    <ellipse cx="50" cy="66" rx="6" ry="4.5" fill="#ffc21a" stroke="#3a2400" stroke-width="1.5"/>
-    <path d="M46 63.5 V 68.5 M 50 62 V 70 M 54 63.5 V 68.5" stroke="#3a2400" stroke-width="1.6"/>
-    <ellipse cx="45" cy="60" rx="4" ry="2.5" fill="#fff" opacity=".85" transform="rotate(-30 45 60)"/>
-    <ellipse cx="55" cy="60" rx="4" ry="2.5" fill="#fff" opacity=".85" transform="rotate(30 55 60)"/>`,
+    <polygon points="50,48 66,57 66,75 50,84 34,75 34,57" fill="#fff3d0" stroke="#7a4b00" stroke-width="2"/>
+    <ellipse cx="50" cy="61" rx="5" ry="3.8" fill="#ffc21a" stroke="#3a2400" stroke-width="1.3"/>
+    <path d="M46.5 59 V 63 M 50 57.8 V 64.2 M 53.5 59 V 63" stroke="#3a2400" stroke-width="1.3"/>
+    <ellipse cx="46" cy="56" rx="3.4" ry="2.1" fill="#fff" opacity=".85" transform="rotate(-30 46 56)"/>
+    <ellipse cx="54" cy="56" rx="3.4" ry="2.1" fill="#fff" opacity=".85" transform="rotate(30 54 56)"/>
+    <text x="50" y="76" text-anchor="middle" font-family="Anton, Impact, sans-serif" font-size="11" letter-spacing=".3" fill="#7a4b00">MACUN</text>`,
 
   chain: `
     ${chainLinks()}
@@ -189,16 +197,32 @@ const ICONS: Partial<Record<SymbolId, string>> = {
     </g>`,
 
   scatter: `
-    <path d="M50 10 C 74 10, 90 24, 90 44 C 90 68, 72 90, 50 92 C 28 90, 10 68, 10 44 C 10 24, 26 10, 50 10 Z" fill="url(#ic-gold)" stroke="#6b4300" stroke-width="2.5"/>
-    <path d="M50 12 C 56 22, 56 36, 52 48 L 50 62 L 48 48 C 44 36, 44 22, 50 12 Z" fill="#fff6c4" opacity=".55"/>
-    <path d="M20 42 C 26 32, 38 32, 44 42 C 38 50, 26 50, 20 42 Z" fill="#12061f" stroke="#6b4300" stroke-width="2"/>
-    <path d="M80 42 C 74 32, 62 32, 56 42 C 62 50, 74 50, 80 42 Z" fill="#12061f" stroke="#6b4300" stroke-width="2"/>
-    <path d="M26 42 C 30 38, 36 38, 38 42" stroke="#8b5cf6" stroke-width="2" fill="none"/>
-    <path d="M74 42 C 70 38, 64 38, 62 42" stroke="#8b5cf6" stroke-width="2" fill="none"/>
-    <path d="M38 72 C 44 77, 56 77, 62 72" stroke="#6b4300" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <path d="M22 26 C 30 18, 40 20, 44 28 M 78 26 C 70 18, 60 20, 56 28" stroke="#8a5a00" stroke-width="2" fill="none"/>
-    <circle cx="50" cy="22" r="4.5" fill="#ff2e88" stroke="#6b0033" stroke-width="1.5"/>
-    <path d="M16 58 C 22 70, 30 78, 40 84" stroke="#fff" stroke-width="2" opacity=".35" fill="none"/>`,
+    <!-- Helmschale mit Schläfenspitzen und zwei Zähnen -->
+    <path d="M50 3 C 68 3, 81 13, 85 27 C 88 38, 88 46, 86 53 L 97 59 L 88 66
+             C 86 76, 81 83, 75 87 L 73 99 L 64 77 C 59 80, 55 81, 50 82
+             C 45 81, 41 80, 36 77 L 27 99 L 25 87 C 19 83, 14 76, 12 66
+             L 3 59 L 14 53 C 12 46, 12 38, 15 27 C 19 13, 32 3, 50 3 Z"
+      fill="url(#ic-mask)" stroke="#5a3a00" stroke-width="2.5" stroke-linejoin="round"/>
+    <!-- Brauenbögen zu den Schläfen -->
+    <path d="M50 22 C 63 25, 75 32, 84 42 M50 22 C 37 25, 25 32, 16 42" fill="none" stroke="#7a5200" stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M50 30 C 61 33, 71 39, 79 47 M50 30 C 39 33, 29 39, 21 47" fill="none" stroke="#7a5200" stroke-width="1.8" opacity=".75" stroke-linecap="round"/>
+    <path d="M50 16 C 62 18, 73 24, 81 32" fill="none" stroke="#fff3c9" stroke-width="2" opacity=".45" stroke-linecap="round"/>
+    <!-- Mittelgrat -->
+    <path d="M50 8 L 50 60" stroke="#7a5200" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M50 12 L 55 30 L 50 58 L 45 30 Z" fill="#d9a318" stroke="#7a5200" stroke-width="1.4"/>
+    <!-- Augenschlitze -->
+    <path d="M57 44 L 83 39 C 83 48, 81 54, 77 57 L 60 52 Z"
+      fill="url(#ic-eye)" stroke="#4a2f00" stroke-width="2.6" stroke-linejoin="round"/>
+    <path d="M43 44 L 17 39 C 17 48, 19 54, 23 57 L 40 52 Z"
+      fill="url(#ic-eye)" stroke="#4a2f00" stroke-width="2.6" stroke-linejoin="round"/>
+    <path d="M63 45.5 L 80 42 M37 45.5 L 20 42" stroke="#fff" stroke-width="1.7" opacity=".5" stroke-linecap="round"/>
+    <!-- Nase & Wangenkanten -->
+    <path d="M50 58 C 46 62, 44 68, 44 73 M50 58 C 54 62, 56 68, 56 73" fill="none" stroke="#7a5200" stroke-width="2" stroke-linecap="round"/>
+    <path d="M78 58 C 78 68, 76 78, 73 86 M22 58 C 22 68, 24 78, 27 86" fill="none" stroke="#7a5200" stroke-width="1.8" stroke-linecap="round"/>
+    <path d="M14 55 C 13 62, 13 66, 14 68 M86 55 C 87 62, 87 66, 86 68" fill="none" stroke="#fff3c9" stroke-width="1.6" opacity=".4" stroke-linecap="round"/>
+    <!-- Glanzlichter -->
+    <path d="M24 18 C 31 11, 40 7, 48 6" fill="none" stroke="#fff6c4" stroke-width="3" opacity=".55" stroke-linecap="round"/>
+    <path d="M30 86 L 28 95" stroke="#fff6c4" stroke-width="1.8" opacity=".4" stroke-linecap="round"/>`,
 
   ace: `
     <g transform="rotate(-10 50 50)">

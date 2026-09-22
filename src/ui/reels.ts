@@ -2,7 +2,7 @@ import { REELS, ROWS, TIMING } from '../config/game';
 import { HEIST_SYMBOLS, type SymbolId } from '../config/symbols';
 import type { Grid, SpinResult } from '../engine/slot';
 import { REEL_STRIPS } from '../engine/strips';
-import { iconSvg } from './icons';
+import ladyUrl from '../assets/scene/lady.webp';
 import { renderSymbol } from './symbolArt';
 
 /** Vorgerenderte Symbol-Knoten, die beim Drehen nur noch geklont werden. */
@@ -255,13 +255,8 @@ export class ReelsView {
     overlay.className = 'expand-overlay';
     overlay.style.setProperty('--origin', `${((wildRow + 0.5) / ROWS) * 100}%`);
     overlay.innerHTML = `
-      <div class="expand-overlay__inner">
-        <div class="expand-overlay__watch">${iconSvg('wild')}</div>
-        <span class="expand-overlay__word">W</span>
-        <span class="expand-overlay__word">I</span>
-        <span class="expand-overlay__word">L</span>
-        <span class="expand-overlay__word">D</span>
-      </div>`;
+      <img class="expand-overlay__figure" src="${ladyUrl}" alt="" draggable="false" />
+      <span class="expand-overlay__word">WILD</span>`;
     reelEl.append(overlay);
     reelEl.classList.add('expanded');
     await wait(520);
