@@ -279,7 +279,13 @@ button.pk-reel:disabled {
 }
 
 .pk__msg {
-  min-height: 20px;
+  /* feste Höhe für 2 Zeilen, damit wechselnde Meldungen nichts verschieben */
+  --lines: 2;
+  height: calc(var(--lines) * 18px);
+  line-height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin: 0;
   font-size: 14px;
   font-weight: 700;
@@ -349,7 +355,20 @@ button.pk-reel:disabled {
   stroke: var(--cyan);
 }
 
-.pk-field.is-used .pk-shape {
+/* Einzelnes Icon (Joker) größer – negativer Rand hält die Zeilenhöhe gleich */
+.pk-shape:only-child {
+  width: 24px;
+  height: 24px;
+  margin-block: -4.5px;
+}
+
+.pk-shape__alt {
+  fill: rgba(0, 229, 255, 0.3);
+  stroke: var(--cyan);
+}
+
+.pk-field.is-used .pk-shape,
+.pk-field.is-used .pk-shape__alt {
   fill: rgba(26, 11, 46, 0.25);
   stroke: #1a0b2e;
 }
@@ -522,6 +541,11 @@ button.pk-reel:disabled {
     margin-block: auto;
   }
 
+  /* schmaler Screen: längste Meldung braucht 3 Zeilen */
+  .pk__msg {
+    --lines: 3;
+  }
+
   .pk__reels {
     gap: 6px;
   }
@@ -549,5 +573,43 @@ button.pk-reel:disabled {
     height: 44px;
     padding: 0 24px;
     font-size: 17px;
+  }
+}
+
+/* Desktop: Fläche besser ausnutzen – größere Walzen und Felder, Block senkrecht mittig */
+@media (min-width: 821px) {
+  .pk {
+    --tile: min(17vh, 15.5vw, 160px);
+    justify-content: safe center;
+    gap: clamp(10px, 2.8vh, 30px);
+  }
+
+  .pk-field {
+    min-height: clamp(84px, 12.5vh, 130px);
+    gap: 6px;
+  }
+
+  .pk-field__label {
+    font-size: 15px;
+  }
+
+  .pk-field__pts {
+    font-size: 13px;
+  }
+
+  .pk-field__icons .pk-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .pk-shape {
+    width: 18px;
+    height: 18px;
+  }
+
+  .pk-shape:only-child {
+    width: 28px;
+    height: 28px;
+    margin-block: -5px;
   }
 }

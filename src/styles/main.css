@@ -32,6 +32,8 @@
 *::before,
 *::after {
   box-sizing: border-box;
+  /* kein Zoom per Doppeltipp (schnelles Tippen auf Spin etc.) */
+  touch-action: manipulation;
 }
 
 html,
@@ -45,7 +47,10 @@ body {
   overflow: hidden;
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
   user-select: none;
+  /* iOS: kein Kopieren/Sichern-Menü bei langem Drücken auf Bilder und Text */
+  -webkit-touch-callout: none;
 }
 
 button {
@@ -258,7 +263,7 @@ body.is-ready .app {
   position: relative;
   display: flex;
   align-items: flex-end;
-  line-height: 0.85;
+  line-height: 1;
   padding-right: 0.9em;
   font-size: clamp(38px, 7.2vh, 82px);
 }
@@ -843,9 +848,10 @@ body.is-spinning .frame::after {
 
 /* Ausgedehnte Walze: ganze Figur plus Schriftzug */
 .expand-overlay__figure {
-  max-width: 100%;
-  max-height: 74%;
+  /* max-width: 100%; */
+  max-height: var(--figure-h, 74%);
   object-fit: contain;
+  translate: 10px 0;
   filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.6));
   animation: expand-figure 0.6s cubic-bezier(0.2, 0.9, 0.3, 1) both;
 }
@@ -933,6 +939,13 @@ body.is-spinning .frame::after {
   text-transform: uppercase;
   color: var(--muted);
   text-align: center;
+}
+
+/* Desktop: Spin-Button ragt nach oben (margin -26px + Ring) – Ticker sitzt darüber */
+@media (min-width: 821px) {
+  .ticker {
+    margin-bottom: 24px;
+  }
 }
 
 .ticker.flash {
@@ -1677,7 +1690,14 @@ body.in-bonus-game .bg * {
 .panel__body {
   overflow: auto;
   padding: 8px 22px 26px;
-  user-select: text;
+}
+
+/* Regeltext nur mit Maus markierbar – auf dem Handy stört die Auswahl beim Scrollen */
+@media (hover: hover) and (pointer: fine) {
+  .panel__body {
+    -webkit-user-select: text;
+    user-select: text;
+  }
 }
 
 .panel__body h3 {
@@ -2058,7 +2078,7 @@ body.in-bonus-game .bg * {
   position: relative;
   display: flex;
   align-items: flex-end;
-  line-height: 0.85;
+  line-height: 1;
   padding-right: 0.9em;
   font-size: clamp(42px, 9vw, 86px);
 }

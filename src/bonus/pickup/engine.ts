@@ -58,6 +58,12 @@ function counts(roll: PickSymbol[]): number[] {
   return [...m.values()].sort((a, b) => b - a);
 }
 
+/** Meiste gleiche Symbole im Wurf */
+export const maxSame = (roll: PickSymbol[]) => counts(roll)[0];
+
+/** 2 Gleiche / Joker: wie 3× Symbol gestaffelt, mindestens 1 Punkt */
+const sameScore = (roll: PickSymbol[]) => SYMBOL_POINTS[maxSame(roll)] ?? 1;
+
 export const FIELDS: Field[] = [
   ...PICK_SYMBOLS.map<Field>((s) => ({
     id: `three-${s}`,
@@ -68,12 +74,34 @@ export const FIELDS: Field[] = [
     fits: (r) => r.filter((x) => x === s).length >= 3,
     score: (r) => SYMBOL_POINTS[Math.min(5, r.filter((x) => x === s).length)] ?? 2,
   })),
-  { id: 'pair', label: '2 Gleiche', hint: 'Mind. 2 gleiche Symbole', points: 1, fits: (r) => counts(r)[0] >= 2 },
-  { id: 'straight', label: '5 Verschiedene', hint: 'Alle 5 Symbole unterschiedlich', points: 1, fits: (r) => counts(r).length === 5 },
-  { id: 'fullhouse', label: 'Full House', hint: '3 Gleiche + 2 andere Gleiche', points: 2, fits: (r) => { const c = counts(r); return c[0] === 3 && c[1] === 2; } },
-  { id: 'four', label: '4 Gleiche', hint: 'Mind. 4 gleiche Symbole', points: 4, fits: (r) => counts(r)[0] >= 4 },
-  { id: 'five', label: '5 Gleiche', hint: 'Alle 5 Symbole gleich', points: 15, fits: (r) => counts(r)[0] === 5 },
-  { id: 'joker', label: 'Joker', hint: 'Passt immer', points: 1, fits: () => true },
+  {
+    id: 'pair',
+    label: '2 Gleiche',
+    hint: 'Mind. 2 gleiche Symbole = 1 Punkt · 3× = 2 · 4× = 4 · 5× = 9',
+    points: 1,
+    fits: (r) => counts(r)[0] >= 2,
+    score: sameScore,
+  },
+  { id: 'straight', label: '5 Verschiedene', hint: 'Alle 5 Symbole unterschiedlich', points: 3, fits: (r) => counts(r).length === 5 },
+  { id: 'fullhouse', label: 'Full House', hint: '3 Gleiche + 2 andere Gleiche', points: 3, fits: (r) => { const c = counts(r); return c[0] === 3 && c[1] === 2; } },
+  {
+    id: 'four',
+    label: '4 Gleiche',
+    hint: 'Mind. 4 gleiche Symbole = 4 Punkte · 5× = 9',
+    points: 4,
+    fits: (r) => counts(r)[0] >= 4,
+    score: sameScore,
+  },
+  { id: 'five', label: '5 Gleiche', hint: 'Alle 5 Symbole gleich', points: 9, fits: (r) => counts(r)[0] === 5 },
+  {
+    id: 'joker',
+    label: 'Joker',
+    hint: 'Passt immer = 1 Punkt · 4 gleiche = 4 · 5× = 9',
+    points: 1,
+    fits: () => true,
+    // erst ab 4 gleichen mehr als 1 Punkt
+    score: (r) => (maxSame(r) >= 4 ? sameScore(r) : 1),
+  },
 ];
 
 export const FIELD_BY_ID = Object.fromEntries(FIELDS.map((f) => [f.id, f])) as Record<FieldId, Field>;
@@ -96,9 +124,12 @@ export function fittingFields(r: PickSymbol[], used: Set<FieldId>): Field[] {
   return FIELDS.filter((f) => !used.has(f.id) && f.fits(r));
 }
 
-/** Einfache Strategie für Simulation & Tests: beste Punkte für diesen Wurf, Joker zuletzt. */
+/** Einfache Strategie für Simulation & Tests: beste Punkte für diesen Wurf,
+ *  bei Gleichstand die flexiblen Felder (2 Gleiche, Joker) aufheben. */
+const KEEP_LAST: Partial<Record<FieldId, number>> = { pair: 1, joker: 2 };
+
 export function bestField(options: Field[], roll: PickSymbol[]): Field | undefined {
   return [...options].sort(
-    (a, b) => fieldScore(b, roll) - fieldScore(a, roll) || (a.id === 'joker' ? 1 : b.id === 'joker' ? -1 : 0),
+    (a, b) => fieldScore(b, roll) - fieldScore(a, roll) || (KEEP_LAST[a.id] ?? 0) - (KEEP_LAST[b.id] ?? 0),
   )[0];
 }

@@ -23,7 +23,8 @@ for (let i = 0; i < N; i++) {
     let opts = fittingFields(r, used);
     // Erneut drehen, solange nur schwache Felder passen (max. MAX_SPINS Spins)
     for (let spin = 1; spin < MAX_SPINS; spin++) {
-      const best = bestField(opts, r);
+      // Joker / 2 Gleiche sind Notnagel – sie allein sind kein Grund, nicht weiterzudrehen
+      const best = bestField(opts.filter((f) => f.id !== 'joker' && f.id !== 'pair'), r);
       if (best && fieldScore(best, r) >= 2) break;
       r = roll(rng, r, suggestHolds(r));
       opts = fittingFields(r, used);

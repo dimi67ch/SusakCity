@@ -3,7 +3,7 @@ import { cryptoRng } from '../../engine/rng';
 import { fmt } from '../../ui/format';
 import { wait } from '../../ui/reels';
 import type { BonusContext } from '..';
-import { fieldScore, FIELDS, fittingFields, MAX_SPINS, PICK_NAMES, PICK_SYMBOLS, REELS, roll, type FieldId, type PickSymbol } from './engine';
+import { fieldScore, FIELDS, fittingFields, MAX_SPINS, maxSame, PICK_NAMES, PICK_SYMBOLS, REELS, roll, type FieldId, type PickSymbol } from './engine';
 import { injectPickDefs, pickIcon, pickIconNode, shapeIcon, type ShapeKind } from './icons';
 import './pickup.css';
 
@@ -234,8 +234,9 @@ export function playPickup({ stage, bet }: BonusContext): Promise<number> {
       sfx.win(pts >= 9 ? 3 : pts >= 4 ? 2 : 1);
       const el = fieldEls.get(id)!;
       el.classList.add('pop');
-      const bonus = pts > f.points ? ` (${current.filter((s) => s === f.symbol).length}× gleich!)` : '';
-      message(`${f.label} eingelöst: +${pts} Punkte${bonus} – ${fmt(pts * bet)}`, 'win');
+      const same = f.symbol ? current.filter((s) => s === f.symbol).length : maxSame(current);
+      const bonus = pts > f.points ? ` (${same}× gleich!)` : '';
+      message(`${f.label} eingelöst: +${pts} ${pts === 1 ? 'Punkt' : 'Punkte'}${bonus} – ${fmt(pts * bet)}`, 'win');
       render();
       if (used.size === FIELDS.length) {
         await wait(700);

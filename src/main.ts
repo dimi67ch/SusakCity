@@ -82,7 +82,17 @@ installBtn.addEventListener('click', async () => {
 
 addEventListener('appinstalled', () => (installBtn.hidden = true));
 
+// Leertaste auf dem Ladebildschirm startet das Spiel, statt dahinter zu spinnen
+const onBootKey = (e: KeyboardEvent) => {
+  if (e.code !== 'Space') return;
+  e.preventDefault();
+  e.stopImmediatePropagation();
+  if (!e.repeat && !startBtn.hidden) startBtn.click();
+};
+addEventListener('keydown', onBootKey, { capture: true });
+
 startBtn.addEventListener('click', () => {
+  removeEventListener('keydown', onBootKey, { capture: true });
   sfx.unlock();
   sfx.uiClick();
   boot.classList.add('is-done');

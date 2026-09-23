@@ -101,7 +101,13 @@ const SHAPES: Record<ShapeKind, string> = {
   triangle: '<path d="M50 10 L 90 84 H 10 Z" stroke-linejoin="round"/>',
   diamond: '<path d="M50 8 L 90 50 L 50 92 L 10 50 Z" stroke-linejoin="round"/>',
   star: '<path d="M50 8 L61 38 L93 38 L67 57 L77 88 L50 69 L23 88 L33 57 L7 38 L39 38 Z" stroke-linejoin="round"/>',
-  joker: '<circle cx="50" cy="50" r="38"/><text x="50" y="68" text-anchor="middle" font-family="Anton, Impact, sans-serif" font-size="52" fill="#1a0b2e" stroke="none">?</text>',
+  // Narrenkappe: seitliche Zipfel hängen nach außen (≠ Krone), Mitte zweifarbig wie beim Harlekin
+  joker:
+    '<path d="M46 72 C40 38 18 16 10 32 C6 40 8 48 12 54 C16 50 22 58 24 72 Z" stroke-linejoin="round"/>' +
+    '<path d="M54 72 C60 38 82 16 90 32 C94 40 92 48 88 54 C84 50 78 58 76 72 Z" stroke-linejoin="round"/>' +
+    '<path class="pk-shape__alt" d="M36 72 C38 46 44 26 50 14 C56 26 62 46 64 72 Z" stroke-linejoin="round"/>' +
+    '<rect x="20" y="72" width="60" height="14" rx="5"/>' +
+    '<circle cx="12" cy="62" r="7"/><circle cx="50" cy="11" r="7"/><circle cx="88" cy="62" r="7"/>',
 };
 
 /** `tone` 0 = Hauptgruppe (gold), 1 = zweite Gruppe (cyan) */
