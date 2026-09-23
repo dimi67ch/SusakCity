@@ -7,13 +7,13 @@ import { renderSymbol } from './symbolArt';
 
 /** Vorgerenderte Symbol-Knoten, die beim Drehen nur noch geklont werden. */
 const symbolCache = new Map<SymbolId, HTMLElement>();
-function symbolNode(id: SymbolId): Node {
+function symbolNode(id: SymbolId): HTMLElement {
   let n = symbolCache.get(id);
   if (!n) {
     n = renderSymbol(id);
     symbolCache.set(id, n);
   }
-  return n.cloneNode(true);
+  return n.cloneNode(true) as HTMLElement;
 }
 
 const WINDUP_MS = 130;
@@ -50,6 +50,8 @@ export class ReelsView {
   private current: Grid;
   private runs: ReelRun[] = [];
   private raf = 0;
+  /** Wiederverwendbare Symbol-Knoten je Walze und Zell-Slot – beim Drehen entsteht kein neues DOM. */
+  private pool: Map<SymbolId, HTMLElement>[][] = [];
 
   constructor(root: HTMLElement, initial: Grid) {
     this.el = root;
@@ -64,6 +66,7 @@ export class ReelsView {
       root.append(reel);
       this.reels.push(reel);
       this.strips.push(strip);
+      this.pool.push(Array.from({ length: ROWS + 2 }, () => new Map()));
       this.renderIdle(r, initial[r]);
     }
   }
@@ -224,7 +227,13 @@ export class ReelsView {
       const id = run.ids[first + i - 1] ?? run.ids[0];
       if (run.shown[i] !== id) {
         run.shown[i] = id;
-        cell.replaceChildren(symbolNode(id));
+        const slot = this.pool[run.reel][i];
+        let node = slot.get(id);
+        if (!node) {
+          node = symbolNode(id);
+          slot.set(id, node);
+        }
+        cell.replaceChildren(node);
       }
       cell.style.transform = `translate3d(0, ${(i - 1 - frac) * 100}%, 0)`;
     }

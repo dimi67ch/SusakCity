@@ -1,3 +1,26 @@
+/** 1 s Stille als WAV (8 kHz, 8 Bit, mono) – für das iOS-Keep-Alive-Element. */
+function silentWavUrl(): string {
+  const rate = 8000;
+  const n = rate;
+  const buf = new ArrayBuffer(44 + n);
+  const v = new DataView(buf);
+  const str = (o: number, s: string) => [...s].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+  str(0, 'RIFF');
+  v.setUint32(4, 36 + n, true);
+  str(8, 'WAVEfmt ');
+  v.setUint32(16, 16, true);
+  v.setUint16(20, 1, true); // PCM
+  v.setUint16(22, 1, true); // mono
+  v.setUint32(24, rate, true);
+  v.setUint32(28, rate, true);
+  v.setUint16(32, 1, true);
+  v.setUint16(34, 8, true);
+  str(36, 'data');
+  v.setUint32(40, n, true);
+  new Uint8Array(buf, 44).fill(128); // 8-Bit-Stille
+  return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+}
+
 /**
  * Synthetisierte Sounds per Web Audio API – keine Audiodateien nötig.
  */
@@ -50,9 +73,10 @@ class Sfx {
     if (!this.keepAlive) {
       // Kurzer stiller WAV-Loop: schaltet iOS auf die Wiedergabe-Session um,
       // damit Web Audio nicht vom Stummschalter unterdrückt wird.
+      // Wichtig: echte Länge (1 s). Ein Loop über eine WAV ohne Samples startet
+      // endlos sofort neu und blockiert den Haupt-Thread komplett.
       const el = document.createElement('audio');
-      el.src =
-        'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQAAAAA=';
+      el.src = silentWavUrl();
       el.loop = true;
       el.volume = 0.001;
       el.setAttribute('playsinline', '');

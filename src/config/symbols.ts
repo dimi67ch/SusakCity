@@ -3,7 +3,7 @@
  *
  * Standardmäßig werden die Neon-SVG-Icons aus `src/ui/icons.ts` verwendet.
  * Eigene Grafiken: lege eine Datei mit der Symbol-ID als Namen in
- * `src/assets/symbols/` ab (z. B. `audi.png`, `wild.webp`, `scatter.svg`).
+ * `src/assets/symbols/` ab (z. B. `audi.png`, `wild.webp`, `scatter.webp`).
  * Sie wird beim Build automatisch erkannt und ersetzt das Icon.
  */
 

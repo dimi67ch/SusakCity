@@ -74,7 +74,7 @@ VITE_BASE=/SusakCity/ npm run build && npm run preview
 ## Eigene Symbolgrafiken
 
 Standardmäßig werden die Neon-SVG-Icons aus `src/ui/icons.ts` gezeichnet. Datei mit der Symbol-ID als Namen in `src/assets/symbols/` ablegen, z. B. `audi.png`, `wild.webp`,
-`scatter.svg`. Sie wird automatisch statt des Icons verwendet.
+`scatter.webp`. Sie wird automatisch statt des Icons verwendet.
 IDs: `vape hammer gloves honey chain audi wild scatter ace don playboy`.
 Empfohlen: quadratisch, transparent, ≥ 256 px.
 

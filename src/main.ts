@@ -14,8 +14,8 @@ import bossUrl from './assets/scene/boss.webp';
 import carUrl from './assets/scene/car.webp';
 
 injectIconDefs();
-buildSkyline(document.getElementById('city-back') as unknown as SVGSVGElement, 7, 'back');
-buildSkyline(document.getElementById('city-front') as unknown as SVGSVGElement, 21, 'front');
+buildSkyline(document.getElementById('city-back') as HTMLImageElement, 7, 'back');
+buildSkyline(document.getElementById('city-front') as HTMLImageElement, 21, 'front');
 document.getElementById('palm-left')!.innerHTML = PALM_SVG;
 document.getElementById('palm-right')!.innerHTML = PALM_SVG;
 (document.getElementById('car') as HTMLImageElement).src = carUrl;

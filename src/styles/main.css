@@ -103,15 +103,7 @@ button:disabled {
     radial-gradient(1px 1px at 5% 50%, #fff 50%, transparent),
     radial-gradient(1px 1px at 56% 4%, #fff 50%, transparent);
   background-size: 700px 500px;
-  opacity: 0.55;
-  animation: twinkle 6s ease-in-out infinite alternate;
-  will-change: opacity;
-}
-
-@keyframes twinkle {
-  to {
-    opacity: 0.25;
-  }
+  opacity: 0.45;
 }
 
 .bg__moon {
@@ -130,54 +122,28 @@ button:disabled {
   right: -10%;
   bottom: 12vh;
   height: 30vh;
-  background: radial-gradient(50% 50% at 50% 100%, rgba(255, 60, 150, 0.45), transparent 70%);
-  filter: blur(20px);
+  background: radial-gradient(50% 50% at 50% 100%, rgba(255, 60, 150, 0.4), rgba(255, 60, 150, 0.12) 55%, transparent 85%);
 }
 
 .bg__city {
   left: 0;
   bottom: 0;
   width: 100%;
+  object-fit: cover;
+  object-position: 50% 100%;
 }
 
 .bg__city--back {
   height: 44vh;
-  color: #1a0b2e;
   opacity: 0.9;
 }
 
 .bg__city--front {
   height: 30vh;
-  color: #09050f;
-}
-
-.bg__city .bld {
-  fill: currentColor;
-}
-
-.bg__city--back rect:not(.bld) {
-  opacity: 0.35;
-}
-
-.bg__city .neon-edge {
-  filter: drop-shadow(0 0 4px currentColor);
-}
-
-.bg__city .beacon {
-  fill: #ff2e88;
-  will-change: opacity;
-  animation: beacon 2s steps(1) infinite;
-}
-
-@keyframes beacon {
-  50% {
-    opacity: 0.15;
-  }
 }
 
 /* Ruhemodus: Deko-Animationen anhalten, wenn das Fenster nicht im Fokus ist
    oder eine Weile nichts passiert – spart dauerhaft GPU-Last */
-body.is-calm .bg *,
 body.is-calm .logo__city,
 body.is-calm .spin__ring,
 body.is-calm .sym--scatter .sym__plate::after,
@@ -191,26 +157,14 @@ body.is-calm .sym--high .sym__plate::after {
   bottom: -6vh;
   height: 26vh;
   background:
-    radial-gradient(40% 60% at 30% 70%, rgba(139, 92, 246, 0.35), transparent 70%),
-    radial-gradient(40% 60% at 70% 80%, rgba(255, 46, 136, 0.3), transparent 70%);
-  filter: blur(30px);
-  animation: haze 18s ease-in-out infinite alternate;
-  will-change: transform;
-}
-
-@keyframes haze {
-  to {
-    transform: translateX(6%);
-  }
+    radial-gradient(45% 65% at 30% 70%, rgba(139, 92, 246, 0.3), transparent 80%),
+    radial-gradient(45% 65% at 70% 80%, rgba(255, 46, 136, 0.26), transparent 80%);
 }
 
 .bg__palm {
   bottom: -3vh;
   height: 62vh;
   aspect-ratio: 4 / 7;
-  transform-origin: 55% 100%;
-  animation: sway 9s ease-in-out infinite alternate;
-  will-change: transform;
 }
 
 .bg__palm svg {
@@ -232,16 +186,6 @@ body.is-calm .sym--high .sym__plate::after {
   right: -7vh;
   scale: -1 1;
   height: 52vh;
-  animation-delay: -4s;
-}
-
-@keyframes sway {
-  from {
-    rotate: -1.2deg;
-  }
-  to {
-    rotate: 1.5deg;
-  }
 }
 
 /* Szene: Auto links, Boss rechts */
@@ -262,7 +206,6 @@ body.is-calm .sym--high .sym__plate::after {
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.9s ease, transform 0.9s ease;
-  filter: drop-shadow(0 0 40px rgba(255, 46, 136, 0.3));
 }
 
 .bg__boss.is-loaded {
@@ -276,16 +219,11 @@ body.is-calm .sym--high .sym__plate::after {
 }
 
 .bg__grain {
-  inset: -50%;
+  inset: 0;
   opacity: 0.07;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-@keyframes grain {
-  25% { transform: translate(-3%, 2%); }
-  50% { transform: translate(2%, -3%); }
-  75% { transform: translate(-1%, -2%); }
-}
 
 /* ═══════════════════════════ App-Layout ═══════════════════════════ */
 .app {
@@ -609,11 +547,11 @@ body.is-spinning .frame::after {
   pointer-events: none;
 }
 
-/* WILD-Schriftzug als Etikett unter dem Porträt */
+/* WILD-Schriftzug als Etikett oben über dem Porträt */
 .sym__plate--portrait .sym__wild-word {
   position: absolute;
-  bottom: 5cqh;
-  z-index: 1;
+  top: 5cqh;
+  z-index: 3;
   padding: 1cqh 7cqh;
   border-radius: 99px;
   font-size: 15cqh;
@@ -673,6 +611,8 @@ body.is-spinning .frame::after {
   letter-spacing: 0.14em;
   color: #0b0716;
   background: linear-gradient(90deg, var(--c1), var(--c2));
+  z-index: 3; /* Aufschrift immer vor dem Symbolbild */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
 }
 
 .sym--low .sym__plate {
@@ -1402,11 +1342,11 @@ body.is-spinning .spin__ring {
 
 .bigwin__rays {
   position: absolute;
-  width: 150vmax;
-  height: 150vmax;
+  width: 120vmax;
+  height: 120vmax;
   will-change: transform;
   background: repeating-conic-gradient(from 0deg, rgba(255, 46, 136, 0.18) 0 6deg, transparent 6deg 18deg);
-  mask: radial-gradient(circle, #000 0%, transparent 45%);
+  mask: radial-gradient(circle, #000 0%, transparent 56%);
   animation: rays 20s linear infinite;
 }
 
@@ -1532,13 +1472,6 @@ body.in-bonus-game .bg * {
   background:
     radial-gradient(60% 50% at 50% 110%, rgba(255, 216, 77, 0.35), transparent 70%),
     repeating-linear-gradient(135deg, rgba(255, 90, 90, 0.06) 0 30px, transparent 30px 60px);
-  animation: heist-pan 6s linear infinite;
-}
-
-@keyframes heist-pan {
-  to {
-    background-position: 0 0, 170px 0;
-  }
 }
 
 .bonus__intro {
@@ -2037,10 +1970,6 @@ body.in-bonus-game .bg * {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bg__stars,
-  .bg__haze,
-  .bg__palm,
-  .bg__grain,
   .frame__border,
   .spin__ring,
   .bigwin__rays,

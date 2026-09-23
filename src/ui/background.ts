@@ -1,77 +1,55 @@
 import { mulberry32 } from '../engine/rng';
 
-const SVG_NS = 'http://www.w3.org/2000/svg';
-
-/** Prozedural generierte Skyline mit beleuchteten Fenstern. */
-export function buildSkyline(svg: SVGSVGElement, seed: number, layer: 'back' | 'front') {
+/**
+ * Prozedural generierte Skyline mit beleuchteten Fenstern.
+ * Wird einmalig als SVG-Bild erzeugt: der Browser rastert es nur einmal,
+ * statt hunderte DOM-Knoten bei jedem Repaint neu zu zeichnen.
+ */
+export function buildSkyline(img: HTMLImageElement, seed: number, layer: 'back' | 'front') {
   const rnd = mulberry32(seed);
   const W = 1600;
   const H = 400;
-  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-  svg.setAttribute('preserveAspectRatio', 'xMidYMax slice');
-  const frag = document.createDocumentFragment();
+  const back = layer === 'back';
+  const bld = back ? '#1a0b2e' : '#09050f';
+  const winAlpha = back ? 0.35 : 1;
   const windowColors = ['#ff2e88', '#00e5ff', '#ffd84d', '#ffb86b', '#b388ff'];
+  const out: string[] = [];
   let x = -20;
   while (x < W) {
-    const w = (layer === 'back' ? 30 : 45) + rnd() * (layer === 'back' ? 60 : 90);
+    const w = (back ? 30 : 45) + rnd() * (back ? 60 : 90);
     const tall = rnd() < 0.18;
-    const h = (layer === 'back' ? 120 : 60) + rnd() * (layer === 'back' ? 180 : 140) + (tall ? 90 : 0);
+    const h = (back ? 120 : 60) + rnd() * (back ? 180 : 140) + (tall ? 90 : 0);
     const y = H - h;
-    const b = document.createElementNS(SVG_NS, 'rect');
-    b.setAttribute('x', x.toFixed(1));
-    b.setAttribute('y', y.toFixed(1));
-    b.setAttribute('width', w.toFixed(1));
-    b.setAttribute('height', h.toFixed(1));
-    b.setAttribute('class', 'bld');
-    frag.append(b);
+    out.push(`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" fill="${bld}"/>`);
 
     if (tall && rnd() < 0.7) {
-      const ant = document.createElementNS(SVG_NS, 'rect');
-      ant.setAttribute('x', (x + w / 2 - 1).toFixed(1));
-      ant.setAttribute('y', (y - 40).toFixed(1));
-      ant.setAttribute('width', '2');
-      ant.setAttribute('height', '40');
-      ant.setAttribute('class', 'bld');
-      frag.append(ant);
-      const light = document.createElementNS(SVG_NS, 'circle');
-      light.setAttribute('cx', (x + w / 2).toFixed(1));
-      light.setAttribute('cy', (y - 42).toFixed(1));
-      light.setAttribute('r', '2.5');
-      light.setAttribute('class', 'beacon');
-      light.style.animationDelay = `${(rnd() * 2).toFixed(2)}s`;
-      frag.append(light);
+      out.push(`<rect x="${(x + w / 2 - 1).toFixed(1)}" y="${(y - 40).toFixed(1)}" width="2" height="40" fill="${bld}"/>`);
+      out.push(`<circle cx="${(x + w / 2).toFixed(1)}" cy="${(y - 42).toFixed(1)}" r="2.5" fill="#ff2e88"/>`);
+      rnd(); // früher: Blink-Verzögerung – hält die Skyline identisch
     }
 
-    // Neon-Kante an manchen Dächern
+    // Neon-Kante an manchen Dächern (weicher Schein statt drop-shadow-Filter)
     if (rnd() < 0.25) {
-      const edge = document.createElementNS(SVG_NS, 'rect');
-      edge.setAttribute('x', x.toFixed(1));
-      edge.setAttribute('y', y.toFixed(1));
-      edge.setAttribute('width', w.toFixed(1));
-      edge.setAttribute('height', '2');
-      edge.setAttribute('fill', windowColors[Math.floor(rnd() * 2)]);
-      edge.setAttribute('class', 'neon-edge');
-      frag.append(edge);
+      const c = windowColors[Math.floor(rnd() * 2)];
+      out.push(`<rect x="${x.toFixed(1)}" y="${(y - 2).toFixed(1)}" width="${w.toFixed(1)}" height="6" fill="${c}" opacity="${(0.25 * winAlpha).toFixed(2)}"/>`);
+      out.push(`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="2" fill="${c}" opacity="${winAlpha}"/>`);
     }
 
     const cols = Math.floor(w / 9);
     const rows = Math.floor(h / 12);
     for (let r = 1; r < rows; r++) {
       for (let c = 1; c < cols; c++) {
-        if (rnd() > (layer === 'back' ? 0.14 : 0.2)) continue;
-        const win = document.createElementNS(SVG_NS, 'rect');
-        win.setAttribute('x', (x + c * 9 - 2).toFixed(1));
-        win.setAttribute('y', (y + r * 12).toFixed(1));
-        win.setAttribute('width', '4');
-        win.setAttribute('height', '5');
-        win.setAttribute('fill', windowColors[Math.floor(rnd() * windowColors.length)]);
-        win.setAttribute('opacity', (0.35 + rnd() * 0.6).toFixed(2));
-        frag.append(win);
+        if (rnd() > (back ? 0.14 : 0.2)) continue;
+        const fill = windowColors[Math.floor(rnd() * windowColors.length)];
+        const r0 = 0.35 + rnd() * 0.6;
+        const op = back ? winAlpha : r0;
+        out.push(`<rect x="${(x + c * 9 - 2).toFixed(1)}" y="${(y + r * 12).toFixed(1)}" width="4" height="5" fill="${fill}" opacity="${op.toFixed(2)}"/>`);
       }
     }
-    x += w + (layer === 'back' ? rnd() * 6 : 2 + rnd() * 14);
+    x += w + (back ? rnd() * 6 : 2 + rnd() * 14);
   }
-  svg.append(frag);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMax slice">${out.join('')}</svg>`;
+  img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
 export const PALM_SVG = `

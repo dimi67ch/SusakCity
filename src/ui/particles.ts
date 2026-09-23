@@ -12,7 +12,7 @@ interface P {
 }
 
 const COLORS = ['#ff2e88', '#00e5ff', '#ffd84d', '#8b5cf6', '#ff8a3d', '#3dffa8'];
-const MAX_PARTICLES = 380;
+const MAX_PARTICLES = 240;
 const SPRITE = 64;
 
 /** Glow-Sprites einmalig vorrendern – drawImage ist um ein Vielfaches billiger als shadowBlur. */
@@ -74,7 +74,7 @@ export class Particles {
   private ps: P[] = [];
   private running = false;
   private fountain = 0;
-  private dpr = Math.min(1.5, window.devicePixelRatio || 1);
+  private dpr = 1; // weiche Glow-Sprites brauchen keine Retina-Auflösung
 
   constructor(canvas: HTMLCanvasElement) {
     this.ctx = canvas.getContext('2d')!;
