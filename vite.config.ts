@@ -8,7 +8,8 @@ export default defineConfig({
   base,
   plugins: [
     VitePWA({
-      registerType: 'autoUpdate',
+      // Update-Zeitpunkt steuert src/pwa.ts selbst (nie mitten im Spin/Bonus)
+      registerType: 'prompt',
       includeAssets: ['apple-touch-icon.png'],
       manifest: {
         name: 'Susak City Slots',

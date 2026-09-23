@@ -334,6 +334,8 @@ export class Game {
     }
 
     this.busy = true;
+    // Spin inkl. Gewinn-/Bonusanzeige läuft – u. a. für das App-Update (kein Neuladen jetzt)
+    document.body.classList.add('is-busy');
     this.presenter.clear();
     this.reels.clearExpanded();
     this.balance -= this.bet;
@@ -377,6 +379,7 @@ export class Game {
     await this.present(result);
 
     this.busy = false;
+    document.body.classList.remove('is-busy');
     this.render();
 
     if (this.autoLeft > 0) {

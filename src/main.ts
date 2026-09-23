@@ -10,10 +10,12 @@ import { Game } from './game';
 import { sfx } from './audio/sfx';
 import { buildSkyline, PALM_SVG } from './ui/background';
 import { injectIconDefs } from './ui/icons';
+import { setupPwaUpdate } from './pwa';
 import bossUrl from './assets/scene/boss.webp';
 import carUrl from './assets/scene/car.webp';
 
 injectIconDefs();
+setupPwaUpdate();
 buildSkyline(document.getElementById('city-back') as HTMLImageElement, 7, 'back');
 buildSkyline(document.getElementById('city-front') as HTMLImageElement, 21, 'front');
 document.getElementById('palm-left')!.innerHTML = PALM_SVG;
