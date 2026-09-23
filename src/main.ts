@@ -89,5 +89,34 @@ startBtn.addEventListener('click', () => {
   setTimeout(() => boot.remove(), 600);
 });
 
+/**
+ * Ruhemodus: Deko-Animationen (Hintergrund, Neon-Ring, Symbol-Glühen) halten an,
+ * sobald das Fenster den Fokus verliert oder 20 s lang nichts passiert.
+ * Beim nächsten Klick, Tastendruck oder Fokus laufen sie sofort weiter.
+ */
+function setupCalmMode() {
+  const IDLE_MS = 20_000;
+  let timer = 0;
+
+  const calm = (on: boolean) => document.body.classList.toggle('is-calm', on);
+  const wake = () => {
+    calm(false);
+    clearTimeout(timer);
+    timer = window.setTimeout(() => calm(true), IDLE_MS);
+  };
+
+  for (const ev of ['pointerdown', 'pointermove', 'keydown', 'wheel', 'touchstart'] as const) {
+    addEventListener(ev, wake, { passive: true });
+  }
+  addEventListener('focus', wake);
+  addEventListener('blur', () => {
+    clearTimeout(timer);
+    calm(true);
+  });
+  document.addEventListener('visibilitychange', () => (document.hidden ? calm(true) : wake()));
+  wake();
+}
+
 new Game();
+setupCalmMode();
 void preload();

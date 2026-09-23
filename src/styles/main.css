@@ -165,13 +165,24 @@ button:disabled {
 
 .bg__city .beacon {
   fill: #ff2e88;
+  will-change: opacity;
   animation: beacon 2s steps(1) infinite;
 }
 
 @keyframes beacon {
   50% {
-    fill: #3a0a20;
+    opacity: 0.15;
   }
+}
+
+/* Ruhemodus: Deko-Animationen anhalten, wenn das Fenster nicht im Fokus ist
+   oder eine Weile nichts passiert – spart dauerhaft GPU-Last */
+body.is-calm .bg *,
+body.is-calm .logo__city,
+body.is-calm .spin__ring,
+body.is-calm .sym--scatter .sym__plate::after,
+body.is-calm .sym--high .sym__plate::after {
+  animation-play-state: paused !important;
 }
 
 .bg__haze {
@@ -1216,8 +1227,13 @@ body.is-spinning .frame::after {
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
-  animation: rotate-border 4s linear infinite;
   will-change: transform;
+}
+
+/* Ring dreht sich nur beim Spin oder beim Überfahren */
+body.is-spinning .spin__ring,
+.spin:hover .spin__ring {
+  animation: rotate-border 4s linear infinite;
 }
 
 .spin__icon {
