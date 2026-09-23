@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#07050d" />
     <title>Susak City Slots</title>
+    <link rel="apple-touch-icon" href="%BASE_URL%apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Susak City" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="description" content="Susak City Slots – 5×5 Neon-Slot mit Pick-Up- und Blackjack-Bonus. Nur Spielgeld." />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ff2e88'/%3E%3Cstop offset='1' stop-color='%2300e5ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%2307050d'/%3E%3Ctext x='32' y='46' font-family='Impact,sans-serif' font-size='40' text-anchor='middle' fill='url(%23g)'%3ES%3C/text%3E%3C/svg%3E" />
   </head>
   <body>
@@ -104,6 +110,18 @@
     </main>
 
     <canvas class="fx" id="fx"></canvas>
+
+    <!-- Ladebildschirm: liegt vor allem anderen und blendet sich selbst aus -->
+    <div class="boot" id="boot" style="position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:#07050d;color:#f6f2ff;font-family:system-ui,sans-serif">
+      <div class="boot__logo">
+        <span class="logo__susak" data-text="SUSAK">SUSAK</span>
+        <span class="logo__city">City</span>
+      </div>
+      <div class="boot__bar"><i id="boot-fill"></i></div>
+      <p class="boot__status" id="boot-status">Lade …</p>
+      <button class="boot__start" id="boot-start" hidden>Spiel starten</button>
+      <button class="boot__install" id="boot-install" hidden>App installieren</button>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

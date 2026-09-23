@@ -6,13 +6,19 @@ class Sfx {
   private master: GainNode | null = null;
   private noiseBuf: AudioBuffer | null = null;
   private riser: { stop: () => void } | null = null;
+  private keepAlive: HTMLAudioElement | null = null;
   private lastStop = 0;
   muted = localStorage.getItem('susak.muted') === '1';
 
-  /** Muss aus einer User-Geste heraus aufgerufen werden. */
+  /**
+   * Muss aus einer User-Geste heraus aufgerufen werden.
+   * iOS braucht zusätzlich einen kurz abgespielten Puffer und ein <audio>-Element,
+   * damit der Ton auch im Home-Bildschirm-Modus und bei aktivem Stummschalter läuft.
+   */
   unlock() {
     if (!this.ctx) {
-      this.ctx = new AudioContext();
+      const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      this.ctx = new Ctor();
       this.master = this.ctx.createGain();
       this.master.gain.value = this.muted ? 0 : 0.55;
       const comp = this.ctx.createDynamicsCompressor();
@@ -23,12 +29,56 @@ class Sfx {
       this.noiseBuf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
       const d = this.noiseBuf.getChannelData(0);
       for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      // Kontext nach Hintergrund/Anruf automatisch wieder aufwecken
+      this.ctx.addEventListener('statechange', () => this.resume());
+      for (const ev of ['visibilitychange', 'focus', 'pageshow', 'pointerdown', 'touchend'] as const) {
+        addEventListener(ev, () => this.resume(), { passive: true });
+      }
     }
-    if (this.ctx.state === 'suspended') void this.ctx.resume();
+    this.primeSilent();
+    this.resume();
+  }
+
+  /** Stille Wiedergabe hält die Audio-Session auf iOS aktiv. */
+  private primeSilent() {
+    const ctx = this.ctx!;
+    const src = ctx.createBufferSource();
+    src.buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+    src.connect(ctx.destination);
+    src.start(0);
+
+    if (!this.keepAlive) {
+      // Kurzer stiller WAV-Loop: schaltet iOS auf die Wiedergabe-Session um,
+      // damit Web Audio nicht vom Stummschalter unterdrückt wird.
+      const el = document.createElement('audio');
+      el.src =
+        'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQAAAAA=';
+      el.loop = true;
+      el.volume = 0.001;
+      el.setAttribute('playsinline', '');
+      el.setAttribute('aria-hidden', 'true');
+      el.style.display = 'none';
+      document.body.append(el);
+      this.keepAlive = el;
+    }
+    void this.keepAlive.play().catch(() => undefined);
+  }
+
+  /** Setzt einen angehaltenen oder unterbrochenen Kontext fort. */
+  resume() {
+    if (!this.ctx) return;
+    if (this.ctx.state !== 'running') void this.ctx.resume().catch(() => undefined);
+    void this.keepAlive?.play().catch(() => undefined);
+  }
+
+  /** true, wenn wirklich Ton ausgegeben werden kann */
+  get active() {
+    return this.ctx?.state === 'running';
   }
 
   setMuted(m: boolean) {
     this.muted = m;
+    if (!m) this.resume();
     localStorage.setItem('susak.muted', m ? '1' : '0');
     if (this.master && this.ctx) this.master.gain.setTargetAtTime(m ? 0 : 0.55, this.ctx.currentTime, 0.02);
   }

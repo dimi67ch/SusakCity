@@ -201,6 +201,7 @@ export class Game {
     });
 
     this.ui.sound.addEventListener('click', () => {
+      sfx.unlock(); // falls der Ton noch nie freigeschaltet wurde
       sfx.setMuted(!sfx.muted);
       sfx.uiClick();
       this.render();

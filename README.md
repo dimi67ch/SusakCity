@@ -37,6 +37,40 @@ src/
 scripts/simulate.ts
 ```
 
+## PWA (installierbar & offline)
+
+`npm run build` erzeugt Manifest, Service Worker und Icons (`vite-plugin-pwa`).
+Alle Dateien (~2,5 MB) werden vorab gecacht, danach läuft das Spiel offline.
+
+```bash
+npm run build && npm run preview   # http://localhost:5190
+```
+
+Installieren: Chrome/Edge zeigen ein Installieren-Symbol in der Adressleiste,
+zusätzlich erscheint im Ladebildschirm der Button „App installieren“.
+iOS: Safari → Teilen → „Zum Home-Bildschirm“.
+
+**Wichtig:** Service Worker brauchen HTTPS oder `localhost`. Über die lokale
+IP (`http://192.168.x.x`) startet das Spiel, ist aber nicht installierbar.
+Für Handy-Tests: `dist/` auf einen Static-Host legen oder einen HTTPS-Tunnel nutzen
+(z. B. `npx cloudflared tunnel --url http://localhost:5190`).
+
+## Deployment (GitHub Pages)
+
+`.github/workflows/deploy.yml` baut bei jedem Push auf `main` und veröffentlicht `dist/`.
+Der Unterpfad kommt automatisch aus dem Repo-Namen (`VITE_BASE=/SusakCity/`).
+
+Einmalig im Repo einstellen: **Settings → Pages → Source: GitHub Actions**.
+
+Danach läuft das Spiel unter `https://dimi67ch.github.io/SusakCity/` – per HTTPS,
+also inklusive Service Worker, Offline-Betrieb und Installation auf dem Handy.
+
+Lokal einen Pages-Build testen:
+
+```bash
+VITE_BASE=/SusakCity/ npm run build && npm run preview
+```
+
 ## Eigene Symbolgrafiken
 
 Standardmäßig werden die Neon-SVG-Icons aus `src/ui/icons.ts` gezeichnet. Datei mit der Symbol-ID als Namen in `src/assets/symbols/` ablegen, z. B. `audi.png`, `wild.webp`,

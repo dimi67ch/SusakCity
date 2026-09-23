@@ -7,6 +7,7 @@ import '@fontsource/inter/600.css';
 import './styles/main.css';
 
 import { Game } from './game';
+import { sfx } from './audio/sfx';
 import { buildSkyline, PALM_SVG } from './ui/background';
 import { injectIconDefs } from './ui/icons';
 import bossUrl from './assets/scene/boss.webp';
@@ -22,7 +23,71 @@ const boss = document.getElementById('boss') as HTMLImageElement;
 boss.addEventListener('load', () => boss.classList.add('is-loaded'), { once: true });
 boss.src = bossUrl;
 
-// Warten bis Schriften geladen sind, damit das Layout nicht springt
-void document.fonts.ready.then(() => document.body.classList.add('is-ready'));
+/**
+ * Ladebildschirm: wartet auf Schriften und alle Bilder (Symbole, Crew, Szene),
+ * danach schaltet ein Klick den Ton frei und startet das Spiel.
+ */
+const assets = Object.values(
+  import.meta.glob('./assets/**/*.{webp,png,jpg,jpeg,svg,avif}', { eager: true, query: '?url', import: 'default' }) as Record<string, string>,
+);
+
+const boot = document.getElementById('boot')!;
+const fill = document.getElementById('boot-fill')!;
+const status = document.getElementById('boot-status')!;
+const startBtn = document.getElementById('boot-start') as HTMLButtonElement;
+
+const loadAsset = (url: string) =>
+  new Promise<void>((resolve) => {
+    const img = new Image();
+    img.onload = img.onerror = () => resolve();
+    img.src = url;
+  });
+
+async function preload() {
+  const jobs: Promise<unknown>[] = [document.fonts.ready, ...assets.map(loadAsset)];
+  let done = 0;
+  const total = jobs.length;
+  await Promise.all(
+    jobs.map((p) =>
+      p.then(() => {
+        done++;
+        fill.style.width = `${Math.round((done / total) * 100)}%`;
+        status.textContent = `Lade … ${Math.round((done / total) * 100)} %`;
+      }),
+    ),
+  );
+  document.body.classList.add('is-ready');
+  status.textContent = 'Bereit';
+  startBtn.hidden = false;
+  startBtn.focus();
+}
+
+// ── PWA: Installation anbieten (der Service Worker wird vom Build registriert) ──
+const installBtn = document.getElementById('boot-install') as HTMLButtonElement;
+let installPrompt: (Event & { prompt(): Promise<void> }) | null = null;
+
+addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  installPrompt = e as Event & { prompt(): Promise<void> };
+  installBtn.hidden = false;
+});
+
+installBtn.addEventListener('click', async () => {
+  if (!installPrompt) return;
+  installBtn.disabled = true;
+  await installPrompt.prompt();
+  installPrompt = null;
+  installBtn.hidden = true;
+});
+
+addEventListener('appinstalled', () => (installBtn.hidden = true));
+
+startBtn.addEventListener('click', () => {
+  sfx.unlock();
+  sfx.uiClick();
+  boot.classList.add('is-done');
+  setTimeout(() => boot.remove(), 600);
+});
 
 new Game();
+void preload();
