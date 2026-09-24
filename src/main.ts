@@ -11,9 +11,12 @@ import { sfx } from './audio/sfx';
 import { buildSkyline, PALM_SVG } from './ui/background';
 import { injectIconDefs } from './ui/icons';
 import { setupPwaUpdate } from './pwa';
+import { fixStandaloneViewport, placeScene } from './ui/viewport';
 import bossUrl from './assets/scene/boss.webp';
 import carUrl from './assets/scene/car.webp';
 
+fixStandaloneViewport();
+placeScene();
 injectIconDefs();
 setupPwaUpdate();
 buildSkyline(document.getElementById('city-back') as HTMLImageElement, 7, 'back');
