@@ -4,7 +4,7 @@ import { fmt } from '../../ui/format';
 import { wait } from '../../ui/reels';
 import type { BonusContext } from '..';
 import { fieldScore, FIELDS, fittingFields, MAX_SPINS, maxSame, PICK_NAMES, PICK_SYMBOLS, REELS, roll, type FieldId, type PickSymbol } from './engine';
-import { injectPickDefs, pickIcon, pickIconNode, shapeIcon, type ShapeKind } from './icons';
+import { pickIcon, pickIconNode, shapeIcon, type ShapeKind } from './icons';
 import './pickup.css';
 
 const FILLER = 9;
@@ -28,7 +28,6 @@ function cell(s: PickSymbol, land = false): HTMLElement {
 
 /** Pick-Up-Bonus (Golden Mask): Kniffel-artiges Spiel mit 5 Einzel-Walzen. */
 export function playPickup({ stage, bet }: BonusContext): Promise<number> {
-  injectPickDefs();
   const rng = cryptoRng();
 
   return new Promise((resolve) => {

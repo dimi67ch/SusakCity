@@ -18,11 +18,17 @@
   --font-display: 'Anton', Impact, sans-serif;
   --font-script: 'Yellowtail', cursive;
   --font-ui: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+
+  /* Sichere Ränder (Dynamic Island / Notch / Home-Balken) – für alle Vollbild-Ebenen */
+  --safe-top: max(12px, calc(env(safe-area-inset-top) + 8px));
+  --safe-bottom: max(14px, env(safe-area-inset-bottom));
+  --safe-left: max(16px, env(safe-area-inset-left));
+  --safe-right: max(16px, env(safe-area-inset-right));
   --font-body: 'Inter', system-ui, sans-serif;
 
   --marker: 30px;
   --frame-pad: 12px;
-  --g: min(calc(100svh - 300px), calc(100vw - 2 * var(--marker) - 2 * var(--frame-pad) - 64px), 660px);
+  --g: min(calc(var(--app-h, 100svh) - 300px), calc(100vw - 2 * var(--marker) - 2 * var(--frame-pad) - 64px), 660px);
   --cell: calc(var(--g) / 5);
 
   color-scheme: dark;
@@ -39,7 +45,7 @@
 html,
 body {
   margin: 0;
-  height: 100%;
+  height: var(--app-h, 100%);
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-body);
@@ -234,12 +240,12 @@ body.is-calm .sym--high .sym__plate::after {
 .app {
   position: relative;
   z-index: 1;
-  height: 100svh;
+  height: var(--app-h, 100svh);
   display: grid;
   grid-template-rows: auto 1fr auto auto;
   justify-items: center;
   align-items: center;
-  padding: max(12px, env(safe-area-inset-top)) 16px max(14px, env(safe-area-inset-bottom));
+  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
   gap: 8px;
   opacity: 0;
   transition: opacity 0.6s ease;
@@ -256,6 +262,12 @@ body.is-ready .app {
   height: 100%;
   z-index: 60;
   pointer-events: none;
+}
+
+/* iOS-Web-App: Viewport zu kurz gemeldet → Vollbild-Ebenen auf echte Höhe ziehen (siehe ui/viewport.ts) */
+html.vh-fix :is(.bg, .fx, .overlay, .boot, .pk, .pk__bg, .pk__end, .bj) {
+  bottom: auto !important;
+  height: var(--app-h) !important;
 }
 
 /* ═══════════════════════════ Logo ═══════════════════════════ */
@@ -992,6 +1004,8 @@ body.is-spinning .frame::after {
   align-items: center;
   gap: 16px;
   padding: 12px 18px;
+  /* Spin-Button ragt unten ~20px über die Leiste hinaus – Platz dafür freihalten */
+  margin-bottom: 14px;
   border-radius: 28px;
   background: var(--glass);
   border: 1px solid var(--faint);
@@ -1315,7 +1329,7 @@ body.is-spinning .spin__ring {
   z-index: 50;
   display: grid;
   place-items: center;
-  padding: 16px;
+  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
   background: rgba(5, 3, 10, 0.86);
   opacity: 0;
   transition: opacity 0.35s ease;
@@ -1578,6 +1592,8 @@ body.in-bonus-game .bg * {
 .bonus__person--right {
   right: 4%;
   height: 94%;
+  /* Playboy steht vor dem Boss */
+  z-index: 3;
   animation-delay: 0.45s;
   --from: 60px;
 }
@@ -1843,12 +1859,12 @@ body.in-bonus-game .bg * {
   :root {
     --marker: 20px;
     --frame-pad: 7px;
-    --g: min(calc(100vw - 2 * var(--marker) - 2 * var(--frame-pad) - 44px), calc(100svh - 330px), 560px);
+    --g: min(calc(100vw - 2 * var(--marker) - 2 * var(--frame-pad) - 44px), calc(var(--app-h, 100svh) - 330px), 560px);
   }
 
   .app {
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: max(10px, env(safe-area-inset-left));
+    padding-right: max(10px, env(safe-area-inset-right));
     gap: 6px;
   }
 
@@ -1890,6 +1906,7 @@ body.in-bonus-game .bg * {
   .hud {
     gap: 10px 8px;
     padding: 12px 14px 14px;
+    margin-bottom: 0;
     border-radius: 24px;
   }
 
@@ -1955,7 +1972,8 @@ body.in-bonus-game .bg * {
   .bg__car {
     display: block;
     left: 40%;
-    top: 10vh;
+    /* hängt an der Boss-Position (ui/viewport.ts → placeScene) */
+    top: calc(var(--scene-top, 7vh) + 3vh);
     bottom: auto;
     translate: -50% 0;
     width: 72vw;
@@ -1968,9 +1986,10 @@ body.in-bonus-game .bg * {
   }
 
   .bg__boss {
-    top: 7vh;
+    /* Gesicht zwischen Schriftzug und Automat (ui/viewport.ts → placeScene) */
+    top: var(--scene-top, 7vh);
     bottom: auto;
-    height: 46vh;
+    height: var(--boss-h, 46vh);
     right: -16vw;
   }
 
@@ -1985,7 +2004,92 @@ body.in-bonus-game .bg * {
   }
 
   :root {
-    --g: min(calc(100svh - 230px), calc(100vw - 2 * var(--marker) - 2 * var(--frame-pad) - 64px));
+    /* 250px = Ränder, Logo, Abstände, Ticker, Leiste + Platz für den Spin-Ring */
+    --g: min(calc(var(--app-h, 100svh) - 250px), calc(100vw - 2 * var(--marker) - 2 * var(--frame-pad) - 64px));
+  }
+}
+
+/* Smartphone quer: Walzen mittig in voller Höhe, Bedienung links und rechts daneben */
+@media (orientation: landscape) and (max-height: 500px) {
+  :root {
+    --marker: 20px;
+    --frame-pad: 7px;
+    --side-w: clamp(130px, 22vw, 230px);
+    --g: min(
+      calc(var(--app-h, 100svh) - max(10px, env(safe-area-inset-top)) - max(10px, env(safe-area-inset-bottom)) - 2 * var(--frame-pad)),
+      calc(100vw - 2 * var(--side-w) - 2 * var(--marker) - 2 * var(--frame-pad) - 72px)
+    );
+  }
+
+  .app {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    /* Links: Logo + Werte untereinander · Rechts: Spin mittig, Icons darüber/darunter */
+    grid-template-rows: auto auto auto auto 1fr auto;
+    grid-template-areas:
+      'logo    machine left'
+      'balance machine spin'
+      'bet     machine spin'
+      'win     machine spin'
+      'ticker  machine spin'
+      'ticker  machine right';
+    column-gap: 12px;
+    row-gap: 10px;
+    padding: max(10px, env(safe-area-inset-top)) var(--safe-right) max(10px, env(safe-area-inset-bottom)) var(--safe-left);
+  }
+
+  /* Leiste auflösen – die Elemente sitzen direkt im App-Raster */
+  .hud,
+  .hud__half {
+    display: contents;
+  }
+
+  .logo { grid-area: logo; font-size: 34px; }
+  .machine { grid-area: machine; margin: 0; gap: 6px; }
+  .ticker { grid-area: ticker; align-self: center; margin: 0; font-size: 10px; letter-spacing: 0.1em; }
+  .stat--balance { grid-area: balance; align-items: center; justify-self: center; }
+  .hud__side--left { grid-area: left; justify-self: center; align-self: start; }
+  .bet { grid-area: bet; }
+  .stat--win { grid-area: win; align-items: center; justify-self: center; margin: 0; }
+  .spin { grid-area: spin; width: 84px; height: 84px; margin: 0; }
+  .spin__icon { width: 40px; height: 40px; }
+  .hud__half--right .hud__side--right { grid-area: right; justify-self: center; align-self: end; margin: 0; }
+
+  .stat { min-width: 0; }
+  .stat__value { font-size: 17px; text-shadow: 0 2px 8px #000; }
+  .stat__label { font-size: 9.5px; letter-spacing: 0.14em; text-shadow: 0 1px 4px #000; }
+  .bet { gap: 6px; }
+  .bet .stat { min-width: 60px; }
+  .round-btn { width: 32px; height: 32px; font-size: 18px; }
+  .icon-btn { width: 40px; height: 40px; }
+
+  .frame { border-radius: 18px; }
+  .grid { border-radius: 12px; }
+
+  /* Mond läge genau hinter Info/Ton */
+  .bg__moon {
+    display: none;
+  }
+
+  /* Szene wie am Desktop: Auto links unten, Boss rechts unten – gedämpft hinter der Bedienung */
+  .bg__car {
+    display: block;
+    left: -4vw;
+    top: auto;
+    bottom: 2vh;
+    translate: none;
+    width: 34vw;
+    opacity: 0.45;
+  }
+
+  .bg__boss {
+    top: auto;
+    bottom: 0;
+    right: -4vw;
+    height: 92vh;
+  }
+
+  .bg__boss.is-loaded {
+    opacity: 0.5;
   }
 }
 
@@ -2062,7 +2166,7 @@ body.in-bonus-game .bg * {
   align-items: center;
   justify-content: center;
   gap: 22px;
-  padding: 24px;
+  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
   background:
     radial-gradient(70% 50% at 50% 55%, rgba(255, 46, 136, 0.18), transparent 70%),
     linear-gradient(180deg, #07050d, #12082a 70%, #2a0d3a);

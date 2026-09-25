@@ -80,7 +80,7 @@ export class Particles {
     this.ctx = canvas.getContext('2d')!;
     const resize = () => {
       canvas.width = innerWidth * this.dpr;
-      canvas.height = innerHeight * this.dpr;
+      canvas.height = (canvas.clientHeight || innerHeight) * this.dpr;
     };
     resize();
     addEventListener('resize', resize);
@@ -131,7 +131,7 @@ export class Particles {
   private loop = () => {
     const { ctx } = this;
     const w = innerWidth;
-    const h = innerHeight;
+    const h = ctx.canvas.height / this.dpr;
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
 
