@@ -2009,6 +2009,90 @@ body.in-bonus-game .bg * {
   }
 }
 
+/* Smartphone quer: Walzen mittig in voller Höhe, Bedienung links und rechts daneben */
+@media (orientation: landscape) and (max-height: 500px) {
+  :root {
+    --marker: 20px;
+    --frame-pad: 7px;
+    --side-w: clamp(130px, 22vw, 230px);
+    --g: min(
+      calc(var(--app-h, 100svh) - max(10px, env(safe-area-inset-top)) - max(10px, env(safe-area-inset-bottom)) - 2 * var(--frame-pad)),
+      calc(100vw - 2 * var(--side-w) - 2 * var(--marker) - 2 * var(--frame-pad) - 72px)
+    );
+  }
+
+  .app {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    /* Links: Logo + Werte untereinander · Rechts: Spin mittig, Icons darüber/darunter */
+    grid-template-rows: auto auto auto auto 1fr auto;
+    grid-template-areas:
+      'logo    machine left'
+      'balance machine spin'
+      'bet     machine spin'
+      'win     machine spin'
+      'ticker  machine spin'
+      'ticker  machine right';
+    column-gap: 12px;
+    row-gap: 10px;
+    padding: max(10px, env(safe-area-inset-top)) var(--safe-right) max(10px, env(safe-area-inset-bottom)) var(--safe-left);
+  }
+
+  /* Leiste auflösen – die Elemente sitzen direkt im App-Raster */
+  .hud,
+  .hud__half {
+    display: contents;
+  }
+
+  .logo { grid-area: logo; font-size: 34px; }
+  .machine { grid-area: machine; margin: 0; gap: 6px; }
+  .ticker { grid-area: ticker; align-self: center; margin: 0; font-size: 10px; letter-spacing: 0.1em; }
+  .stat--balance { grid-area: balance; align-items: center; justify-self: center; }
+  .hud__side--left { grid-area: left; justify-self: center; align-self: start; }
+  .bet { grid-area: bet; }
+  .stat--win { grid-area: win; align-items: center; justify-self: center; margin: 0; }
+  .spin { grid-area: spin; width: 84px; height: 84px; margin: 0; }
+  .spin__icon { width: 40px; height: 40px; }
+  .hud__half--right .hud__side--right { grid-area: right; justify-self: center; align-self: end; margin: 0; }
+
+  .stat { min-width: 0; }
+  .stat__value { font-size: 17px; text-shadow: 0 2px 8px #000; }
+  .stat__label { font-size: 9.5px; letter-spacing: 0.14em; text-shadow: 0 1px 4px #000; }
+  .bet { gap: 6px; }
+  .bet .stat { min-width: 60px; }
+  .round-btn { width: 32px; height: 32px; font-size: 18px; }
+  .icon-btn { width: 40px; height: 40px; }
+
+  .frame { border-radius: 18px; }
+  .grid { border-radius: 12px; }
+
+  /* Mond läge genau hinter Info/Ton */
+  .bg__moon {
+    display: none;
+  }
+
+  /* Szene wie am Desktop: Auto links unten, Boss rechts unten – gedämpft hinter der Bedienung */
+  .bg__car {
+    display: block;
+    left: -4vw;
+    top: auto;
+    bottom: 2vh;
+    translate: none;
+    width: 34vw;
+    opacity: 0.45;
+  }
+
+  .bg__boss {
+    top: auto;
+    bottom: 0;
+    right: -4vw;
+    height: 92vh;
+  }
+
+  .bg__boss.is-loaded {
+    opacity: 0.5;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .frame__border,
   .spin__ring,
