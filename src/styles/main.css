@@ -18,6 +18,12 @@
   --font-display: 'Anton', Impact, sans-serif;
   --font-script: 'Yellowtail', cursive;
   --font-ui: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+
+  /* Sichere Ränder (Dynamic Island / Notch / Home-Balken) – für alle Vollbild-Ebenen */
+  --safe-top: max(12px, calc(env(safe-area-inset-top) + 8px));
+  --safe-bottom: max(14px, env(safe-area-inset-bottom));
+  --safe-left: max(16px, env(safe-area-inset-left));
+  --safe-right: max(16px, env(safe-area-inset-right));
   --font-body: 'Inter', system-ui, sans-serif;
 
   --marker: 30px;
@@ -239,7 +245,7 @@ body.is-calm .sym--high .sym__plate::after {
   grid-template-rows: auto 1fr auto auto;
   justify-items: center;
   align-items: center;
-  padding: max(12px, env(safe-area-inset-top)) 16px max(14px, env(safe-area-inset-bottom));
+  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
   gap: 8px;
   opacity: 0;
   transition: opacity 0.6s ease;
@@ -1323,7 +1329,7 @@ body.is-spinning .spin__ring {
   z-index: 50;
   display: grid;
   place-items: center;
-  padding: 16px;
+  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
   background: rgba(5, 3, 10, 0.86);
   opacity: 0;
   transition: opacity 0.35s ease;
@@ -1857,8 +1863,8 @@ body.in-bonus-game .bg * {
   }
 
   .app {
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: max(10px, env(safe-area-inset-left));
+    padding-right: max(10px, env(safe-area-inset-right));
     gap: 6px;
   }
 
@@ -2076,7 +2082,7 @@ body.in-bonus-game .bg * {
   align-items: center;
   justify-content: center;
   gap: 22px;
-  padding: 24px;
+  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
   background:
     radial-gradient(70% 50% at 50% 55%, rgba(255, 46, 136, 0.18), transparent 70%),
     linear-gradient(180deg, #07050d, #12082a 70%, #2a0d3a);

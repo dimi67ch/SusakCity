@@ -43,6 +43,31 @@ export function fixStandaloneViewport() {
   screen.orientation?.addEventListener('change', settle);
 }
 
+/**
+ * Kein Zoom in der ganzen App: iOS zoomt trotz `touch-action: manipulation` bei
+ * Doppeltipp auf Hintergrund, Text oder deaktivierte Knöpfe – und per Pinch.
+ */
+export function preventZoom() {
+  // Pinch-Zoom (Safari-eigene Gesten-Events)
+  for (const ev of ['gesturestart', 'gesturechange', 'gestureend'] as const) {
+    document.addEventListener(ev, (e) => e.preventDefault(), { passive: false });
+  }
+  // Doppeltipp: zweiten Tipp abfangen – außer auf aktiven Bedienelementen,
+  // damit schnelles Tippen auf Spin & Co. weiterhin jeden Klick auslöst
+  let lastTouch = 0;
+  document.addEventListener(
+    'touchend',
+    (e) => {
+      const now = e.timeStamp;
+      const interactive = (e.target as Element | null)?.closest?.('button:not(:disabled), a, input, select, textarea, label');
+      if (now - lastTouch < 350 && !interactive && e.cancelable) e.preventDefault();
+      lastTouch = now;
+    },
+    { passive: false },
+  );
+  document.addEventListener('dblclick', (e) => e.preventDefault());
+}
+
 /** Lage des Gesichts im Boss-Bild (Anteil der Bildhöhe): Stirn bzw. Kinn */
 const FACE_TOP = 0.06;
 const FACE_BOTTOM = 0.34;
