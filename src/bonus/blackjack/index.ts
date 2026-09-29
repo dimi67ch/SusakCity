@@ -79,6 +79,7 @@ export function playBlackjack({ stage, wallet }: BonusContext): Promise<number> 
     let busy = false;
 
     stage.classList.add('bj');
+    sfx.blackjackIntro();
     stage.innerHTML = `
       ${SCENE_HTML}
       <div class="bj__play">
@@ -564,7 +565,7 @@ export function playBlackjack({ stage, wallet }: BonusContext): Promise<number> 
 
     ui.leave.addEventListener('click', () => {
       if (phase !== 'bet' && phase !== 'done') return;
-      sfx.uiClick();
+      sfx.blackjackLeave();
       removeEventListener('keydown', onKey);
       resolve(0);
     });

@@ -451,6 +451,8 @@ export class Game {
         this.setTicker(`Pick-Up-Gewinn ${fmt(bonusWin)}`, 'win');
         this.countWin(this.winCounter + bonusWin, 800);
       }
+      // „Jawohl Junge" nach dem Pick-Up – bei Big Win erst danach
+      if (id === 'golden') sfx.pickupDone();
       this.render();
     }
 

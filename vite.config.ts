@@ -28,7 +28,7 @@ export default defineConfig({
       },
       workbox: {
         // Alles vorab in den Cache legen – das Spiel läuft danach offline
-        globPatterns: ['**/*.{js,css,html,webp,png,svg,woff,woff2}'],
+        globPatterns: ['**/*.{js,css,html,webp,png,svg,woff,woff2,mp3}'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         cleanupOutdatedCaches: true,
         navigateFallback: `${base}index.html`,

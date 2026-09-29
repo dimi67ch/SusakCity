@@ -1,3 +1,58 @@
+import noticeUrl from '../assets/audio/gluecksspiel-hinweis.mp3';
+import welcomeUrl from '../assets/audio/herzlich-willkommen.mp3';
+import welcomeCasinoUrl from '../assets/audio/willkommen-susak-casino.mp3';
+import bigWinUrl from '../assets/audio/lanlanlan.mp3';
+import pickupUrl from '../assets/audio/pick-me-up.mp3';
+import blackjackUrl from '../assets/audio/auf-gehts-maenner.mp3';
+import blackjackLeaveUrl from '../assets/audio/ee-susak.mp3';
+import pickupDoneUrl from '../assets/audio/jawohl-junge.mp3';
+
+/** Sprachaufnahmen – alle über denselben Weg und auf dieselbe Lautheit gebracht */
+const VOICES = {
+  notice: noticeUrl,
+  welcome: welcomeUrl,
+  welcomeCasino: welcomeCasinoUrl,
+  bigWin: bigWinUrl,
+  pickup: pickupUrl,
+  blackjack: blackjackUrl,
+  blackjackLeave: blackjackLeaveUrl,
+  pickupDone: pickupDoneUrl,
+};
+export type VoiceId = keyof typeof VOICES;
+
+/** Ziel-Lautheit aller Sprachaufnahmen (RMS der hörbaren Teile, dBFS). Kleiner = leiser. */
+const VOICE_LEVEL_DB = -14;
+
+/** Dateien schon vor dem Start-Klick laden – dekodiert wird erst mit dem Audio-Kontext */
+const voiceData = Object.fromEntries(
+  Object.entries(VOICES).map(([id, url]) => [id, fetch(url).then((r) => r.arrayBuffer())]),
+) as Record<VoiceId, Promise<ArrayBuffer>>;
+
+/** Verstärkung, die eine Aufnahme auf VOICE_LEVEL_DB bringt (Stille wird ignoriert, nie übersteuert). */
+function levelGain(buf: AudioBuffer): number {
+  const win = Math.floor(buf.sampleRate * 0.05);
+  let sum = 0;
+  let n = 0;
+  let peak = 0;
+  for (let c = 0; c < buf.numberOfChannels; c++) {
+    const d = buf.getChannelData(c);
+    for (let i = 0; i + win <= d.length; i += win) {
+      let s = 0;
+      for (let j = i; j < i + win; j++) {
+        s += d[j] * d[j];
+        peak = Math.max(peak, Math.abs(d[j]));
+      }
+      if (Math.sqrt(s / win) > 0.003) {
+        sum += s;
+        n += win;
+      }
+    }
+  }
+  if (!n) return 1;
+  const rms = Math.sqrt(sum / n);
+  return Math.min(10 ** (VOICE_LEVEL_DB / 20) / rms, 0.98 / peak);
+}
+
 /** 1 s Stille als WAV (8 kHz, 8 Bit, mono) – für das iOS-Keep-Alive-Element. */
 function silentWavUrl(): string {
   const rate = 8000;
@@ -22,15 +77,22 @@ function silentWavUrl(): string {
 }
 
 /**
- * Synthetisierte Sounds per Web Audio API – keine Audiodateien nötig.
+ * Synthetisierte Sounds per Web Audio API – plus Sprachaufnahmen, die über denselben
+ * Kontext laufen und damit die iOS-Freischaltung teilen.
  */
 class Sfx {
   private ctx: AudioContext | null = null;
   private master: GainNode | null = null;
   private noiseBuf: AudioBuffer | null = null;
+  /** Eigener Weg für Sprache: am Kompressor der Effekte vorbei, damit alle gleich laut bleiben */
+  private voiceBus: GainNode | null = null;
+  private voices: Partial<Record<VoiceId, Promise<{ buf: AudioBuffer; gain: number } | null>>> = {};
+  private loadedVoices: Partial<Record<VoiceId, { buf: AudioBuffer; gain: number }>> = {};
   private riser: { stop: () => void } | null = null;
   private keepAlive: HTMLAudioElement | null = null;
   private lastStop = 0;
+  /** Kontextzeit, zu der der Big-Win-Jingle ausklingt */
+  private bigWinEnd = 0;
   muted = localStorage.getItem('susak.muted') === '1';
 
   /**
@@ -56,6 +118,15 @@ class Sfx {
       this.ctx.addEventListener('statechange', () => this.resume());
       for (const ev of ['visibilitychange', 'focus', 'pageshow', 'pointerdown', 'touchend'] as const) {
         addEventListener(ev, () => this.resume(), { passive: true });
+      }
+      this.voiceBus = this.ctx.createGain();
+      this.voiceBus.gain.value = this.muted ? 0 : 1;
+      this.voiceBus.connect(this.ctx.destination);
+      for (const id of Object.keys(VOICES) as VoiceId[]) {
+        this.voices[id] = voiceData[id]
+          .then((data) => this.ctx!.decodeAudioData(data))
+          .then((buf) => (this.loadedVoices[id] = { buf, gain: levelGain(buf) }))
+          .catch(() => null);
       }
     }
     this.primeSilent();
@@ -88,6 +159,54 @@ class Sfx {
     void this.keepAlive.play().catch(() => undefined);
   }
 
+  /** Startet eine geladene Aufnahme frühestens zur Kontextzeit `at`; liefert Endzeit und Ende-Promise. */
+  private startVoice(id: VoiceId, { force = false, at = 0 } = {}) {
+    const v = this.loadedVoices[id];
+    const ctx = this.ctx;
+    if (!v || !ctx) return null;
+    const src = ctx.createBufferSource();
+    const g = ctx.createGain();
+    src.buffer = v.buf;
+    g.gain.value = v.gain;
+    // force: Pflichthinweis – spielt auch bei stummgeschaltetem Spiel
+    src.connect(g).connect(force ? ctx.destination : this.voiceBus!);
+    const t = Math.max(ctx.currentTime, at);
+    const done = new Promise<void>((r) => (src.onended = () => r()));
+    src.start(t);
+    return { end: t + v.buf.duration, done };
+  }
+
+  /**
+   * Spielt eine Sprachaufnahme ab, sobald sie geladen ist; löst auf, wenn sie zu Ende ist
+   * (oder sofort, falls sie nicht abgespielt werden kann).
+   */
+  async voice(id: VoiceId, opts: { force?: boolean } = {}): Promise<void> {
+    if (this.muted && !opts.force) return;
+    await this.voices[id];
+    if (this.ctx && this.ctx.state !== 'running') await this.ctx.resume().catch(() => undefined);
+    await this.startVoice(id, opts)?.done;
+  }
+
+  /** „Pick me up" beim Betreten der Pick-Up-Walzen. */
+  pickupIntro() {
+    if (this.ready) this.startVoice('pickup');
+  }
+
+  /** „Auf geht's, Männer" beim Platznehmen am Blackjack-Tisch. */
+  blackjackIntro() {
+    if (this.ready) this.startVoice('blackjack');
+  }
+
+  /** „Ee Susak" beim Verlassen des Blackjack-Tischs. */
+  blackjackLeave() {
+    if (this.ready) this.startVoice('blackjackLeave');
+  }
+
+  /** „Jawohl Junge" nach dem Pick-Up-Bonus – wartet, falls noch der Big-Win-Jingle läuft. */
+  pickupDone() {
+    if (this.ready) this.startVoice('pickupDone', { at: this.bigWinEnd });
+  }
+
   /** Setzt einen angehaltenen oder unterbrochenen Kontext fort. */
   resume() {
     if (!this.ctx) return;
@@ -105,6 +224,7 @@ class Sfx {
     if (!m) this.resume();
     localStorage.setItem('susak.muted', m ? '1' : '0');
     if (this.master && this.ctx) this.master.gain.setTargetAtTime(m ? 0 : 0.55, this.ctx.currentTime, 0.02);
+    if (this.voiceBus && this.ctx) this.voiceBus.gain.setTargetAtTime(m ? 0 : 1, this.ctx.currentTime, 0.02);
   }
 
   private get ready() {
@@ -252,6 +372,12 @@ class Sfx {
 
   bigWin() {
     if (!this.ready) return;
+    const jingle = this.startVoice('bigWin');
+    if (jingle) {
+      this.bigWinEnd = jingle.end;
+      return;
+    }
+    // Fallback, solange der Jingle noch nicht dekodiert ist
     const chords = [
       [261.6, 329.6, 392],
       [293.7, 370, 440],
