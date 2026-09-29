@@ -42,6 +42,9 @@ const fill = document.getElementById('boot-fill')!;
 const status = document.getElementById('boot-status')!;
 const startBtn = document.getElementById('boot-start') as HTMLButtonElement;
 
+// Begrüßung: in 4 von 5 Fällen „… beim Susak Casino", sonst das kurze „Herzlich willkommen"
+const welcome = Math.random() < 0.8 ? 'welcomeCasino' : 'welcome';
+
 const loadAsset = (url: string) =>
   new Promise<void>((resolve) => {
     const img = new Image();
@@ -93,16 +96,30 @@ const onBootKey = (e: KeyboardEvent) => {
   if (e.code !== 'Space') return;
   e.preventDefault();
   e.stopImmediatePropagation();
-  if (!e.repeat && !startBtn.hidden) startBtn.click();
+  if (!e.repeat && !startBtn.hidden && !startBtn.disabled) startBtn.click();
 };
 addEventListener('keydown', onBootKey, { capture: true });
 
 startBtn.addEventListener('click', () => {
-  removeEventListener('keydown', onBootKey, { capture: true });
+  startBtn.disabled = true;
+  status.textContent = 'Hinweis …';
   sfx.unlock();
-  sfx.uiClick();
-  boot.classList.add('is-done');
-  setTimeout(() => boot.remove(), 600);
+
+  let started = false;
+  const startGame = () => {
+    if (started) return;
+    started = true;
+    clearTimeout(fallback);
+    removeEventListener('keydown', onBootKey, { capture: true });
+    boot.classList.add('is-done');
+    setTimeout(() => boot.remove(), 600);
+    void sfx.voice(welcome);
+  };
+
+  // Notbremse, falls der Hinweis nicht abgespielt werden kann (er ist ~2 s lang)
+  const fallback = setTimeout(startGame, 8000);
+  // Pflichthinweis „Glücksspiel kann süchtig machen" – spielt auch bei stummem Spiel komplett durch
+  void sfx.voice('notice', { force: true }).then(startGame);
 });
 
 /**

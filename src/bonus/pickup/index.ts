@@ -42,6 +42,7 @@ export function playPickup({ stage, bet }: BonusContext): Promise<number> {
     const used = new Map<FieldId, number>();
 
     stage.classList.add('pk');
+    sfx.pickupIntro();
     stage.innerHTML = `
       <div class="pk__bg" aria-hidden="true"></div>
       <header class="pk__head">
